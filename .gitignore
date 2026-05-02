@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.python-version
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# uv
+.uv/
+uv.lock
+
+# Node / SvelteKit
+node_modules/
+.svelte-kit/
+build/
+.vercel/
+.cloudflare/
+dist/
+*.tsbuildinfo
+
+# Env / secrets
+.env
+.env.*
+!.env.example
+
+# Model artifacts (checkpoints can be large; don't commit)
+backend/checkpoints/
+*.pt
+*.pth
+*.safetensors
+
+# Generated art (large; can be regenerated)
+# Uncomment if you want to keep art out of git
+# frontend/static/art/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+.cursor/
+
+# Logs
+*.log
+logs/

@@ -26,11 +26,14 @@ You arrive in a glass conservatory at dawn. There are 113 small empty vessels ar
 7. **Stack:** SvelteKit (Svelte 5) + TypeScript + SVG/Framer-equivalent (svelte/transition + Motion One) + Canvas-where-needed | FastAPI + PyTorch + TransformerLens (`HookedTransformer`) | REST + 1 WebSocket (stretch) | static-served generated art with pinned style prefix | localStorage state.
 8. **Scope:** see `MVP / Stretch / Out-of-scope` below.
 
-## Model spec (locked, exact Nanda config)
+## Model spec (locked, exact Nanda config — verified in `research.md` §1)
 
-- 1-layer transformer (attention-only ok, MLP version preferred for the MLP Forge room).
-- `d_model=128`, `n_heads=4`, `d_head=32`, `d_mlp=512`, `vocab=p+1=114`.
-- ReLU MLP. Train fraction: 30%.
+- 1-layer transformer, **attention + MLP** (ReLU). Not attention-only — the canonical Fourier circuit lives in the MLP.
+- `d_model=128`, `n_heads=4`, `d_head=32`, `d_mlp=512`, `d_vocab=114` (113 numbers + `=` token), `n_ctx=3`.
+- LayerNorm: none. Positional encoding: learned.
+- Optimizer: AdamW, `lr=1e-3`, `weight_decay=1.0`, full-batch GD, 40,000 epochs.
+- Train fraction: 30% of all `(a, b)` pairs.
+- **Five key frequencies** for `p=113`: `k ∈ {14, 35, 41, 42, 52}` — each one is a visual motif planted across rooms 1–4 and revealed in the Fourier Wing.
 - Reaching grokking on this config reproduces Nanda et al. "Progress measures for grokking via mechanistic interpretability."
 
 ## Genre

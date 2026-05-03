@@ -392,3 +392,58 @@ What survives, what changes, what's new.
 
 ### Confirmed not blocked
 - Nothing in the research reveals a blocker. The plan survives contact with reality.
+
+---
+
+## 7. PyTorch MPS on Apple Silicon (added 2026-05-03 during Step B)
+
+Live research triggered by the question: "we have an M4 Max + 128 GB unified memory; why are we training on CPU?" Answer: we shouldn't, but **MLX is the wrong fix** because TransformerLens is PyTorch-only; **MPS is the right fix** while keeping our mechinterp toolkit intact.
+
+Sources fetched:
+- <https://docs.pytorch.org/docs/stable/notes/mps.html>
+- <https://developer.apple.com/metal/pytorch/>
+- <https://github.com/pytorch/pytorch/issues/77764> (MPS meta-tracker)
+- <https://pytorch.org/blog/pytorch-2-11-release-blog/>
+- <https://github.com/TransformerLensOrg/TransformerLens/issues/1178>
+- <https://github.com/pytorch/pytorch/issues/163597> (Sep 2025, live SDPA non-contiguous-Q regression)
+- <https://qqaatw.github.io/pytorch-mps-ops-coverage/>
+
+### 7.1 Status of the "MPS may produce silently incorrect results" framing
+- That framing is **community/TransformerLens, not PyTorch official**. The PyTorch MPS notes page does not contain a blanket warning.
+- TL#1178 is **closed** (deemed an upstream PyTorch problem, mostly fixed in 2.9–2.11).
+- PyTorch 2.9, 2.10, 2.11 each shipped specific MPS correctness fixes (BatchNorm gradient, SDPA NaN, fill/cat large-tensor, bf16/fp16 SDPA accumulation forced to fp32).
+- New regressions still ship occasionally — e.g., #163597 (SDPA fast path returns garbage for non-contiguous Q with `head_dim ∈ {64, 96, 128}, seq ≤ 8`). Mitigation: `.contiguous()` before attention. Doesn't affect us (our `head_dim=32` is below threshold).
+- Verdict: framing is now **overcautious for typical fp32 small-model training**, but specific kernel paths still bite.
+
+### 7.2 Empirical parity test for our exact config (logged 2026-05-03)
+500-epoch CPU-vs-MPS comparison with same seed (results in `backend/mps_parity_metrics.json`):
+
+| epoch | cpu_train_loss | mps_train_loss | cpu_test_acc | mps_test_acc |
+|---|---|---|---|---|
+| 0 | 4.7282 | 4.7282 | 0.0086 | 0.0086 |
+| 100 | 2.8570 | 2.8576 | 0.0038 | 0.0035 |
+| 200 | 0.0363 | 0.0388 | 0.0084 | 0.0088 |
+| 499 | 0.0011 | 0.0012 | 0.0110 | 0.0107 |
+
+Both devices reach memorization (train_acc = 1.0) at epoch 200. Train losses agree to 3-4 decimals throughout. No NaN. No divergence. **Speedup 1.43x** (CPU 9.5s vs MPS 6.6s for 500 epochs — modest because the model is small enough that MPS launch overhead per step matters).
+
+### 7.3 Decisions ratified
+- **Train on MPS by default** for future runs (`train_spike.py` updated). Set `TRANSFORMERLENS_ALLOW_MPS=1` and `PYTORCH_ENABLE_MPS_FALLBACK=1` in the script.
+- **CPU v2 checkpoints (40k epochs, grokked) remain the gold-standard reference.** No need to re-run on MPS — the goal of the v2 spike was to validate the design, not to optimize wall-clock.
+- **Pin to PyTorch ≥ 2.10** (avoid 2.8.0 specifically — known TL+MPS bug on that version).
+- **MLX is rejected** for this project. Switching to MLX would force giving up TransformerLens and the entire mechinterp ecosystem (no MLX equivalent exists). The cost is way out of proportion to the speed gain.
+
+### 7.4 Hardware acceleration context (M4 Max specifically)
+- **GPU cores** — Apple's analog of CUDA cores; embed matrix-multiply units in M3/M4. Reachable via Metal/MPS.
+- **Neural Engine (ANE)** — 16-core, ~38 TOPS, INT8/FP16. **Not reachable from PyTorch.** Only via CoreML / MLX bridges. Inference-oriented.
+- **AMX (Apple Matrix coprocessor)** on the CPU side. Used transparently by macOS Accelerate framework. PyTorch CPU backend benefits indirectly via BLAS-on-Accelerate. MPS does *not* use AMX.
+- **CPU run** = AMX via Accelerate. **MPS run** = GPU matrix units. Both are real hardware acceleration; the ANE is unused by either path.
+
+For our tiny model on M4 Max, the speedup ceiling is modest because the bottleneck is sequential per-step launch overhead, not raw FLOPS. Memory (128 GB) is irrelevant — our model is ~2M params.
+
+### 7.5 Live gotchas to remember
+- **No fp64 on MPS.** Don't use `torch.float64` anywhere.
+- **`PYTORCH_ENABLE_MPS_FALLBACK=1`** for unimplemented ops — already set in `train_spike.py`.
+- **Call `.contiguous()`** defensively before any attention call to dodge the SDPA fast-path regression.
+- **RNG bit-exactness differs** across devices, even with the same seed. Don't write tests that compare bit-for-bit.
+- **macOS 14+ required** since PyTorch 2.9.

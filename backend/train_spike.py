@@ -29,10 +29,17 @@ LR = 1e-3
 WD = 1.0
 BETAS = (0.9, 0.98)
 
-# CPU is the safe choice: TransformerLens warns MPS can silently produce wrong
-# results in PyTorch 2.11. For a config-validation spike we need trustworthy
-# results more than speed.
-device = "cpu"
+# Device choice: MPS is now trusted for our specific 1L attn+MLP fp32 config.
+# Validated against CPU on a 500-epoch parity run (mps_parity.py): both devices
+# reach memorization at the same epoch and train losses agree to 3-4 decimals.
+# The original "MPS may produce silently incorrect results" warning is now
+# considered overcautious for this kind of small-model fp32 workload (per live
+# research of PyTorch 2.9-2.11 release notes; see research.md §7).
+# CPU remains a fine fallback if MPS misbehaves on a future config change.
+import os
+os.environ.setdefault("TRANSFORMERLENS_ALLOW_MPS", "1")
+os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
+device = "mps" if torch.backends.mps.is_available() else "cpu"
 print(f"device: {device}", flush=True)
 
 torch.manual_seed(SEED)

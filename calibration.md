@@ -1,7 +1,8 @@
 # Knowledge Calibration Sheet — Uri (Day-1-Player)
 
-**Status:** IN PROGRESS — T1–T4 captured, **T5 PENDING**.
+**Status:** COMPLETE — all 5 tiers captured, recommendation finalized.
 **Date started:** 2026-05-02
+**Date completed:** 2026-05-03
 **Framing:** mixed, weighted toward α — the finished game must be playable by Day-1-Uri.
 **Method:** `/grill-me` knowledge-calibration round (no design; probes only).
 
@@ -12,7 +13,7 @@ This sheet is the input to:
 
 ---
 
-## Summary of comfort ratings (T5 pending)
+## Summary of comfort ratings
 
 | Tier | Topic | Rating | One-line |
 |---|---|---|---|
@@ -20,7 +21,7 @@ This sheet is the input to:
 | T2 | Training mechanics | **1.5 / 4** | Overfitting concept ✅; toolkit of mitigations thin; optimizers = magic boxes. |
 | T3 | NLP / sequence basics | **1.5 / 4** | Strong tokenization/semantic-space intuition (input side); output-side terminology thin (logits/softmax/CE blanks). |
 | T4 | Math for Fourier finale | **1 / 4** | Linalg shape rule ✅ but matrix×vector compute wrong; trig at SOH-CAH-TOA only, no wave/periodicity intuition; "Fourier" name only via MPEG context. |
-| T5 | Mechinterp sensibility | **PENDING** | — |
+| T5 | Mechinterp sensibility | **2 / 4** | Strong conceptual sensibility (~3/4 — "NN debugger" GDB analogy is exactly right); vocabulary thin (~1/4). |
 
 Meta-pattern across all tiers: AWS ML Specialty cert exposure (passed 2 months ago, just before phase-out) → strong **terminology familiarity** without **operational understanding**. *This is the perfect signature for the game's audience — exposure-to-operationalization is exactly what the rooms are designed to do.*
 
@@ -146,22 +147,35 @@ Meta-pattern across all tiers: AWS ML Specialty cert exposure (passed 2 months a
 
 ---
 
-## T5 — Mechinterp sensibility — **PENDING**
+## T5 — Mechinterp sensibility — 2 / 4
 
-**Probe planned:**
-- *"What does 'reverse-engineer a neural network' mean to you?"*
-- *"Circuit / ablation / activation patching — name recognition / vague vibe / complete blank?"*
+**Probes used:**
+1. *"What does 'reverse-engineer a neural network' mean to you, in your own words?"*
+2. *"Circuit / ablation / activation patching — name recognition / vague vibe / complete blank?"*
 
-**Pre-known signal** (from initial /grill-me intake on 2026-05-02):
-- User self-flagged: *"I still dont know what are 'residual streams', 'qk/ov circits', and other basic transformers terms."*
-- Expected T5 baseline: ~0.5–1 / 4. Comfort here is essentially zero, but that's OK — Level 6 of the game *is* the introduction to mechinterp.
+**What's solid (and surprisingly so):**
+- ✅ **Conceptual sensibility ~3/4 — better than expected.** User produced an excellent operational shape:
+  > *"Specific debugging, similarly to using GDB poking specific RAM cells: getting input into the model, analyzing the answers, hypothesizing at which node/neuron(s) in the NN decision points are located, probe hypothesis, check if true, rinse and repeat till places are found. You can also attack those points seeing whether hypothesis is true according to changes in outputs."*
+- 💡 The "NN debugger / GDB poking RAM cells" analogy is **exactly right** — TransformerLens is literally marketed as a neural network debugger.
+- ✅ The shape — input/output observation → hypothesis about where computation lives → probe → intervention to confirm — *is* mechinterp. The vocabulary is missing, but the activity shape is correct.
+- ✅ **Activation patching**: described it almost correctly — "freezing the model with new activations patched." Only error: said "weights" instead of "activations."
 
-**Resume instructions:**
-- Re-invoke `/grill-me` with the same args, OR continue from main thread with: "Resume calibration at T5 — apply the two probes above; close the sheet."
+**Gaps (vocabulary, not concept):**
+- **Circuit** (mechinterp sense): conflated with single node/neuron. Truth: a circuit is a *subgraph* — multiple components (heads, neurons, residual paths) together implementing one computation. Closer to "a small specialized program inside the network" than "a single node."
+- **Ablation**: complete blank. Didn't know the English word. *"Ablate" = remove by surgery (medical roots). In mechinterp: zero out a component and watch output change.*
+- **Activation patching**: vague-vibe close to correct. **Critical correction**: activations, not weights. Activations are intermediate values during a forward pass; weights are learned parameters.
+
+**Recap items (vocabulary primer, JIT in Level 6):**
+- "Circuit" = a subgraph, a tiny program built from a few attention heads + neurons + residual paths.
+- "Ablation" = surgical removal — zero out a component, see what breaks.
+- "Activation patching" = paste intermediate values from one forward pass into another, see if the output flips. The cleanest causal probe.
+- "Residual stream" (already on the user's missing-list) = the running scratchpad vector that flows through every layer; components read from it and write to it.
+
+**Implication:** Level 6 (Fourier Wing) doesn't need a heavy conceptual ramp — just a vocabulary onboarding. The user already has the *posture* of a mechinterp investigator.
 
 ---
 
-## Cross-cutting observations (preliminary — finalize after T5)
+## Cross-cutting observations (final)
 
 1. **Pattern across all tiers:** AWS ML Spec → terminology exposure without operational understanding. The calibration confirms this exactly. Game's job is precisely to convert exposure → operational mastery via embodied interaction.
 
@@ -173,9 +187,16 @@ Meta-pattern across all tiers: AWS ML Specialty cert exposure (passed 2 months a
 
 5. **T1 gaps are minor** and can be folded into Level 0 / first-room primer.
 
+6. **T5 surprise (final addition):** Conceptual sensibility for mechinterp is *much stronger than expected*. The user's "NN debugger / GDB poking RAM cells" analogy lands the operational shape of mechinterp without effort. Vocabulary is the only gap. Level 6 can therefore be **vocabulary-onboarding-light** rather than concept-heavy. The mechinterp posture is already there.
+
+7. **Conceptual vs vocabulary asymmetry across the whole calibration:**
+   - Strong intuitions, weak vocabulary: T1 (layer math), T3 (embeddings), T5 (mechinterp).
+   - Both intuition and vocabulary thin: T2 (training mechanics), T4 (math).
+   - This asymmetry shapes the on-ramp: where intuition is strong, primers are short (just "here's the name for what you already know"). Where both are thin, primers must teach actual concepts.
+
 ---
 
-## Preliminary recommendation (will firm after T5)
+## Final recommendation
 
 **Two-pronged scaffolding:**
 
@@ -216,15 +237,17 @@ Short prepended scenes (~2–3 min) at each room covering the prereqs that room 
 
 **Alternative if scope is tight:** skip the Math Antechamber, fold its content into Embedding Garden's primer (matrix×vector before vectors do anything) and Fourier Wing's primer (waves before Fourier). Cost saved: ~1 week. Risk: those two rooms each become double-duty, and the math content gets less time/space than it deserves.
 
+**Level 6 adjustment after T5:** Fourier Wing's primer becomes lighter than originally feared. The user already has mechinterp posture — Level 6 only needs to **introduce vocabulary** ("now we call this thing a circuit; this surgical-removal experiment is called ablation; this paste-this-here move is activation patching") layered on top of activities the user can intuit from the GDB-debugger analogy. Conceptual scaffolding for "what *is* mechinterp doing" is *not* needed — the user has it.
+
 ---
 
-## TODO before this sheet is final
+## TODO
 
-- [ ] Run T5 probe → fill in T5 section.
-- [ ] Finalize "Preliminary recommendation" → "Final recommendation" once T5 is closed.
-- [ ] Commit to git.
+- [x] Run T5 probe → fill in T5 section.
+- [x] Finalize "Preliminary recommendation" → "Final recommendation" once T5 is closed.
+- [x] Commit to git.
 - [ ] Use as input to Step C (acceptance criteria) and `/to-prd`.
 
 ---
 
-*Generated via /grill-me knowledge-calibration round, paused at T5 for safety checkpoint per user request 2026-05-02 21:54 IDT.*
+*Generated via /grill-me knowledge-calibration round on 2026-05-02; T5 closed and recommendation finalized 2026-05-03.*

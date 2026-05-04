@@ -5,7 +5,7 @@
 		{ slug: 'attention-hall', title: 'Attention Hall', glyph: '👁', enabled: false },
 		{ slug: 'mlp-forge', title: 'MLP Forge', glyph: '🔥', enabled: false },
 		{ slug: 'unembedding-tower', title: 'Unembedding Tower', glyph: '🗼', enabled: false },
-		{ slug: 'grokking-bell', title: 'Grokking Bell', glyph: '🔔', enabled: false },
+		{ slug: 'grokking-bell', title: 'Grokking Bell', glyph: '🔔', enabled: true },
 		{ slug: 'fourier-wing', title: 'Fourier Wing', glyph: '🌀', enabled: false }
 	];
 </script>

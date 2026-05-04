@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { P } from '$lib/style';
-	import { garden } from '$lib/garden.svelte';
+	import { garden, CHECKPOINT_STEPS } from '$lib/garden.svelte';
 	import type { EmbeddingSnapshot } from './+page';
 
-	let { data } = $props<{ data: { preGrok: EmbeddingSnapshot; postGrok: EmbeddingSnapshot } }>();
+	let { data } = $props<{ data: { snapshots: Record<number, EmbeddingSnapshot> } }>();
 	let hovered = $state<number | null>(null);
 
 	const RING_R = 220;
@@ -17,7 +17,7 @@
 	});
 	const indices = Array.from({ length: P }, (_, i) => i);
 
-	const compareData = $derived(garden.checkpoint === 'pre-grok' ? data.preGrok : data.postGrok);
+	const compareData = $derived(data.snapshots[garden.checkpoint]);
 
 	function rescale(points: EmbeddingSnapshot['points'], size: number, padding: number) {
 		let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
@@ -121,18 +121,15 @@
 				<div class="panel-head">
 					<h2>Where the vectors live</h2>
 					<div class="checkpoint-toggle">
-						<button
-							class:active={garden.checkpoint === 'pre-grok'}
-							onclick={() => garden.setCheckpoint('pre-grok')}
-						>
-							pre-grok
-						</button>
-						<button
-							class:active={garden.checkpoint === 'post-grok'}
-							onclick={() => garden.setCheckpoint('post-grok')}
-						>
-							post-grok
-						</button>
+						{#each CHECKPOINT_STEPS as step (step)}
+							<button
+								class:active={garden.checkpoint === step}
+								onclick={() => garden.setCheckpoint(step)}
+								title="checkpoint at training step {step}"
+							>
+								{step}
+							</button>
+						{/each}
 					</div>
 				</div>
 				<svg viewBox="0 0 {SVG_SIZE} {SVG_SIZE}" class="compare-svg" role="img" aria-label="2D projection of embeddings">
@@ -142,9 +139,10 @@
 					{/each}
 				</svg>
 				<p class="caption">
-					Pre-grok: random scatter — token IDs are arbitrary. Post-grok: the network has
-					learned that the integers form a cycle, so they live on a ring. <em>This is the
-						Fourier Wing's punchline, glimpsed early.</em>
+					Step 0: random scatter — token IDs are arbitrary. As training progresses the points
+					reorganize, and by step 39999 the integers have settled onto a ring — the network
+					has learned they form a cycle. <em>This is the Fourier Wing's punchline,
+						glimpsed early.</em>
 				</p>
 			</div>
 		{/if}

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import favicon from '$lib/assets/favicon.svg';
-	import { palette } from '$lib/style';
 
 	let { children } = $props();
 </script>
@@ -10,22 +9,26 @@
 	<title>Transformer Rooms</title>
 </svelte:head>
 
-<div class="root" style:--teal={palette.teal} style:--teal-deep={palette.tealDeep} style:--brass={palette.brass} style:--brass-bright={palette.brassBright} style:--ivory={palette.ivory} style:--ivory-muted={palette.ivoryMuted} style:--ink={palette.ink}>
-	{@render children()}
-</div>
+{@render children()}
 
 <style>
+	:global(:root) {
+		--teal: #1f3a3d;
+		--teal-deep: #152629;
+		--brass: #b08940;
+		--brass-bright: #d4a857;
+		--ivory: #f1ead8;
+		--ivory-muted: #d8cfb4;
+		--ink: #0d1518;
+	}
 	:global(html, body) {
 		margin: 0;
 		padding: 0;
 		min-height: 100vh;
 	}
 	:global(body) {
-		background: var(--teal-deep, #152629);
-		color: var(--ivory, #f1ead8);
+		background: var(--teal-deep);
+		color: var(--ivory);
 		font-family: 'Iowan Old Style', 'Palatino', Georgia, serif;
-	}
-	.root {
-		min-height: 100vh;
 	}
 </style>

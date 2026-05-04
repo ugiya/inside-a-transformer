@@ -1,7 +1,7 @@
 <script lang="ts">
 	const rooms = [
 		{ slug: 'embedding-garden', title: 'Embedding Garden', glyph: '🌱', enabled: true },
-		{ slug: 'hall-of-memory', title: 'Hall of Memory', glyph: '🕯', enabled: false },
+		{ slug: 'hall-of-memory', title: 'Hall of Memory', glyph: '🕯', enabled: true },
 		{ slug: 'attention-hall', title: 'Attention Hall', glyph: '👁', enabled: false },
 		{ slug: 'mlp-forge', title: 'MLP Forge', glyph: '🔥', enabled: false },
 		{ slug: 'unembedding-tower', title: 'Unembedding Tower', glyph: '🗼', enabled: false },

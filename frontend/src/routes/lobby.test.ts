@@ -9,4 +9,11 @@ describe('Lobby', () => {
 		expect(link).not.toBeNull();
 		expect(link?.textContent ?? '').toContain('Hall of Memory');
 	});
+
+	it('exposes Grokking Bell as a clickable enter-link to /grokking-bell', () => {
+		const { container } = render(Lobby);
+		const link = container.querySelector('a[href="/grokking-bell"]');
+		expect(link).not.toBeNull();
+		expect(link?.textContent ?? '').toContain('Grokking Bell');
+	});
 });

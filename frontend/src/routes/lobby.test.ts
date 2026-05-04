@@ -16,4 +16,11 @@ describe('Lobby', () => {
 		expect(link).not.toBeNull();
 		expect(link?.textContent ?? '').toContain('Grokking Bell');
 	});
+
+	it('exposes Unembedding Tower as a clickable enter-link to /unembedding-tower', () => {
+		const { container } = render(Lobby);
+		const link = container.querySelector('a[href="/unembedding-tower"]');
+		expect(link).not.toBeNull();
+		expect(link?.textContent ?? '').toContain('Unembedding Tower');
+	});
 });

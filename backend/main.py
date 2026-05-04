@@ -1,6 +1,8 @@
-def main():
-    print("Hello from backend!")
+"""Uvicorn entry point.
 
+Run:
+    uv run uvicorn main:app --reload --port 8000
+"""
+from transformer_rooms.api import app
 
-if __name__ == "__main__":
-    main()
+__all__ = ["app"]

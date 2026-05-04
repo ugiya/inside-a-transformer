@@ -1,9 +1,13 @@
 import { P } from './style';
 
+export type View = 'ring' | 'compare';
+export type Checkpoint = 'pre-grok' | 'post-grok';
+
 function makeState() {
 	const planted: boolean[] = $state(Array.from({ length: P }, () => false));
-	let view: 'ring' | 'compare' = $state('ring');
-	let checkpoint: 'pre-grok' | 'post-grok' = $state('pre-grok');
+	const count = $derived(planted.reduce((acc, v) => acc + (v ? 1 : 0), 0));
+	let view: View = $state('ring');
+	let checkpoint: Checkpoint = $state('pre-grok');
 
 	return {
 		get planted() {
@@ -19,18 +23,18 @@ function makeState() {
 			for (let i = 0; i < P; i++) planted[i] = false;
 		},
 		get plantedCount() {
-			return planted.filter(Boolean).length;
+			return count;
 		},
 		get view() {
 			return view;
 		},
-		setView(v: 'ring' | 'compare') {
+		setView(v: View) {
 			view = v;
 		},
 		get checkpoint() {
 			return checkpoint;
 		},
-		setCheckpoint(c: 'pre-grok' | 'post-grok') {
+		setCheckpoint(c: Checkpoint) {
 			checkpoint = c;
 		}
 	};

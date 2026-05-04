@@ -1,42 +1,32 @@
 <script lang="ts">
-	import { P, palette } from '$lib/style';
+	import { P } from '$lib/style';
 	import { garden } from '$lib/garden.svelte';
+	import type { EmbeddingSnapshot } from './+page';
 
-	type Point = { i: number; x: number; y: number };
-	type Checkpoint = { step: number; label: string; points: Point[] };
-
-	let preGrok = $state<Checkpoint | null>(null);
-	let postGrok = $state<Checkpoint | null>(null);
+	let { data } = $props<{ data: { preGrok: EmbeddingSnapshot; postGrok: EmbeddingSnapshot } }>();
 	let hovered = $state<number | null>(null);
-
-	$effect(() => {
-		fetch('/embeddings/step_00000.json')
-			.then((r) => r.json())
-			.then((d) => (preGrok = d));
-		fetch('/embeddings/step_40000.json')
-			.then((r) => r.json())
-			.then((d) => (postGrok = d));
-	});
 
 	const RING_R = 220;
 	const VESSEL_R = 9;
 	const CENTER = 280;
 	const SVG_SIZE = 560;
 
-	function ringPos(i: number) {
+	const ringPositions = Array.from({ length: P }, (_, i) => {
 		const theta = (2 * Math.PI * i) / P - Math.PI / 2;
 		return { cx: CENTER + RING_R * Math.cos(theta), cy: CENTER + RING_R * Math.sin(theta) };
-	}
+	});
+	const indices = Array.from({ length: P }, (_, i) => i);
 
-	const compareData = $derived(garden.checkpoint === 'pre-grok' ? preGrok : postGrok);
+	const compareData = $derived(garden.checkpoint === 'pre-grok' ? data.preGrok : data.postGrok);
 
-	function rescale(points: Point[], size: number, padding: number) {
-		const xs = points.map((p) => p.x);
-		const ys = points.map((p) => p.y);
-		const minX = Math.min(...xs);
-		const maxX = Math.max(...xs);
-		const minY = Math.min(...ys);
-		const maxY = Math.max(...ys);
+	function rescale(points: EmbeddingSnapshot['points'], size: number, padding: number) {
+		let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+		for (const p of points) {
+			if (p.x < minX) minX = p.x;
+			if (p.x > maxX) maxX = p.x;
+			if (p.y < minY) minY = p.y;
+			if (p.y > maxY) maxY = p.y;
+		}
 		const dx = maxX - minX || 1;
 		const dy = maxY - minY || 1;
 		const inner = size - 2 * padding;
@@ -47,9 +37,7 @@
 		}));
 	}
 
-	const compareScaled = $derived(
-		compareData ? rescale(compareData.points, SVG_SIZE, 30) : []
-	);
+	const compareScaled = $derived(rescale(compareData.points, SVG_SIZE, 30));
 </script>
 
 <main>
@@ -73,17 +61,14 @@
 				</div>
 			</div>
 			<svg viewBox="0 0 {SVG_SIZE} {SVG_SIZE}" class="ring-svg" role="img" aria-label="Ring of 113 embedding vessels">
-				<!-- decorative ring outline -->
-				<circle cx={CENTER} cy={CENTER} r={RING_R} fill="none" stroke={palette.teal} stroke-width="1" stroke-dasharray="2 4" />
-				<!-- pedestal -->
+				<circle cx={CENTER} cy={CENTER} r={RING_R} fill="none" stroke="var(--teal)" stroke-width="1" stroke-dasharray="2 4" />
 				<g class="pedestal">
-					<circle cx={CENTER} cy={CENTER} r="48" fill={palette.tealDeep} stroke={palette.brass} stroke-width="1.5" />
+					<circle cx={CENTER} cy={CENTER} r="48" fill="var(--teal-deep)" stroke="var(--brass)" stroke-width="1.5" />
 					<text x={CENTER} y={CENTER - 4} text-anchor="middle" class="pedestal-label">embed</text>
 					<text x={CENTER} y={CENTER + 14} text-anchor="middle" class="pedestal-count">{garden.plantedCount}/{P}</text>
 				</g>
-				<!-- vessels -->
-				{#each Array.from({ length: P }, (_, i) => i) as i (i)}
-					{@const pos = ringPos(i)}
+				{#each indices as i (i)}
+					{@const pos = ringPositions[i]}
 					{@const isPlanted = garden.planted[i]}
 					{@const isHovered = hovered === i}
 					<g class="vessel" class:planted={isPlanted} class:hovered={isHovered}>
@@ -91,8 +76,8 @@
 							cx={pos.cx}
 							cy={pos.cy}
 							r={VESSEL_R}
-							fill={isPlanted ? palette.brassBright : 'none'}
-							stroke={isPlanted ? palette.brass : palette.ivoryMuted}
+							fill={isPlanted ? 'var(--brass-bright)' : 'none'}
+							stroke={isPlanted ? 'var(--brass)' : 'var(--ivory-muted)'}
 							stroke-width={isHovered ? 2 : 1}
 							onclick={() => garden.toggle(i)}
 							onkeydown={(e) => {
@@ -107,11 +92,15 @@
 							aria-label="Vessel {i}"
 							tabindex="0"
 						/>
-						{#if isHovered}
-							<text x={pos.cx} y={pos.cy - VESSEL_R - 4} text-anchor="middle" class="vessel-label">
-								{i}
-							</text>
-						{/if}
+						<text
+							x={pos.cx}
+							y={pos.cy - VESSEL_R - 4}
+							text-anchor="middle"
+							class="vessel-label"
+							visibility={isHovered ? 'visible' : 'hidden'}
+						>
+							{i}
+						</text>
 					</g>
 				{/each}
 			</svg>
@@ -147,16 +136,10 @@
 					</div>
 				</div>
 				<svg viewBox="0 0 {SVG_SIZE} {SVG_SIZE}" class="compare-svg" role="img" aria-label="2D projection of embeddings">
-					{#if compareData}
-						<text x="20" y="30" class="compare-label">{compareData.label}</text>
-						{#each compareScaled as p (p.i)}
-							<circle cx={p.cx} cy={p.cy} r="4" fill={palette.brassBright} opacity="0.85" />
-						{/each}
-					{:else}
-						<text x={SVG_SIZE / 2} y={SVG_SIZE / 2} text-anchor="middle" class="compare-label">
-							loading…
-						</text>
-					{/if}
+					<text x="20" y="30" class="compare-label">{compareData.label}</text>
+					{#each compareScaled as p (p.i)}
+						<circle cx={p.cx} cy={p.cy} r="4" fill="var(--brass-bright)" opacity="0.85" />
+					{/each}
 				</svg>
 				<p class="caption">
 					Pre-grok: random scatter — token IDs are arbitrary. Post-grok: the network has
@@ -237,7 +220,7 @@
 	}
 	.vessel circle {
 		cursor: pointer;
-		transition: r 120ms ease, stroke-width 120ms ease;
+		transition: stroke-width 120ms ease;
 	}
 	.vessel circle:focus {
 		outline: 2px solid var(--brass-bright);

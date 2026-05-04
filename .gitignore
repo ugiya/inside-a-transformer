@@ -52,3 +52,6 @@ Thumbs.db
 # Logs
 *.log
 logs/
+
+# Worktrees from spawned agents
+.claude/

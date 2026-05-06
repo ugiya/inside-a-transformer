@@ -37,4 +37,11 @@ describe('Lobby', () => {
 		expect(link).not.toBeNull();
 		expect(link?.textContent ?? '').toContain('MLP Forge');
 	});
+
+	it('exposes Fourier Wing as a clickable enter-link to /fourier-wing', () => {
+		const { container } = render(Lobby);
+		const link = container.querySelector('a[href="/fourier-wing"]');
+		expect(link).not.toBeNull();
+		expect(link?.textContent ?? '').toContain('Fourier Wing');
+	});
 });

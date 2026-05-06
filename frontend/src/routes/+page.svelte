@@ -2,8 +2,8 @@
 	const rooms = [
 		{ slug: 'embedding-garden', title: 'Embedding Garden', glyph: '🌱', enabled: true },
 		{ slug: 'hall-of-memory', title: 'Hall of Memory', glyph: '🕯', enabled: true },
-		{ slug: 'attention-hall', title: 'Attention Hall', glyph: '👁', enabled: false },
-		{ slug: 'mlp-forge', title: 'MLP Forge', glyph: '🔥', enabled: false },
+		{ slug: 'attention-hall', title: 'Attention Hall', glyph: '👁', enabled: true },
+		{ slug: 'mlp-forge', title: 'MLP Forge', glyph: '🔥', enabled: true },
 		{ slug: 'unembedding-tower', title: 'Unembedding Tower', glyph: '🗼', enabled: true },
 		{ slug: 'grokking-bell', title: 'Grokking Bell', glyph: '🔔', enabled: true },
 		{ slug: 'fourier-wing', title: 'Fourier Wing', glyph: '🌀', enabled: false }

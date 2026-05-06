@@ -74,6 +74,30 @@ export const primerManifest: PrimerEntry[] = [
 			'Run the model on a <em>source</em> input and a <em>target</em> input. Then re-run the target pass while overwriting one activation with its source-pass value. The change in output tells you what that activation <em>causally</em> carries.'
 		),
 		interaction: widgetSnippet('activation patching')
+	},
+	{
+		term: 'circuit',
+		headline: 'Circuit — a subgraph that explains a behavior',
+		body: htmlBody(
+			'A <em>circuit</em> is the small, identifiable subgraph of components — heads, neurons, residual paths — that together implement a single behavior. Mechinterp work is largely about isolating and naming these circuits.'
+		),
+		interaction: widgetSnippet('circuit')
+	},
+	{
+		term: 'ablation',
+		headline: 'Ablation — delete a piece, watch what breaks',
+		body: htmlBody(
+			'Set a component (a head, a neuron, an entire layer) to zero or to its mean and re-run the forward pass. If the behavior survives, that component was not load-bearing. If it collapses, the component is part of the circuit.'
+		),
+		interaction: widgetSnippet('ablation')
+	},
+	{
+		term: 'residual stream',
+		headline: 'Residual stream — the running notebook every layer reads from',
+		body: htmlBody(
+			'Each layer reads from a shared per-token vector and <em>adds</em> its contribution back. That accumulating vector is the <em>residual stream</em>. Hooks like <code>blocks.0.hook_resid_pre</code> let you peek at it before any layer touches it.'
+		),
+		interaction: widgetSnippet('residual stream')
 	}
 ];
 

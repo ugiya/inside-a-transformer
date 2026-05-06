@@ -6,12 +6,15 @@ const REQUIRED_TERMS = [
 	'softmax',
 	'cross-entropy',
 	'weight decay',
-	'activation patching'
+	'activation patching',
+	'circuit',
+	'ablation',
+	'residual stream'
 ] as const;
 
 describe('primer-manifest', () => {
-	it('exports exactly 5 entries', () => {
-		expect(primerManifest).toHaveLength(5);
+	it('exports exactly 8 entries', () => {
+		expect(primerManifest).toHaveLength(8);
 	});
 
 	it('contains every required term', () => {

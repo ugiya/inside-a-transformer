@@ -1,5 +1,8 @@
 <script lang="ts">
+	import { gameState } from '$lib/gameState.svelte';
+
 	const rooms = [
+		{ slug: 'math-antechamber', title: 'Math Antechamber', glyph: '📐', enabled: true },
 		{ slug: 'embedding-garden', title: 'Embedding Garden', glyph: '🌱', enabled: true },
 		{ slug: 'hall-of-memory', title: 'Hall of Memory', glyph: '🕯', enabled: true },
 		{ slug: 'attention-hall', title: 'Attention Hall', glyph: '👁', enabled: true },
@@ -8,6 +11,10 @@
 		{ slug: 'grokking-bell', title: 'Grokking Bell', glyph: '🔔', enabled: true },
 		{ slug: 'fourier-wing', title: 'Fourier Wing', glyph: '🌀', enabled: false }
 	];
+
+	function skipMathAntechamber() {
+		gameState.setMathAntechamberSkipped(true);
+	}
 </script>
 
 <main>
@@ -25,6 +32,14 @@
 						<span class="title">{r.title}</span>
 						<span class="status">enter</span>
 					</a>
+					{#if r.slug === 'math-antechamber'}
+						<button
+							type="button"
+							class="skip-link"
+							onclick={skipMathAntechamber}
+							data-test="lobby-skip-math"
+						>skip</button>
+					{/if}
 				{:else}
 					<span class="card disabled">
 						<span class="glyph">{r.glyph}</span>
@@ -95,5 +110,29 @@
 	}
 	.disabled .status {
 		color: var(--ivory-muted);
+	}
+	.rooms li {
+		display: flex;
+		align-items: stretch;
+		gap: 0.4rem;
+	}
+	.rooms li > a,
+	.rooms li > .card {
+		flex: 1;
+	}
+	.skip-link {
+		font: inherit;
+		font-size: 0.75rem;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		background: transparent;
+		color: var(--ivory-muted);
+		border: 1px dashed var(--teal);
+		padding: 0 0.9rem;
+		cursor: pointer;
+	}
+	.skip-link:hover {
+		color: var(--brass-bright);
+		border-color: var(--brass);
 	}
 </style>

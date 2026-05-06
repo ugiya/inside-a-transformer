@@ -9,7 +9,7 @@
 		{ slug: 'mlp-forge', title: 'MLP Forge', glyph: '🔥', enabled: true },
 		{ slug: 'unembedding-tower', title: 'Unembedding Tower', glyph: '🗼', enabled: true },
 		{ slug: 'grokking-bell', title: 'Grokking Bell', glyph: '🔔', enabled: true },
-		{ slug: 'fourier-wing', title: 'Fourier Wing', glyph: '🌀', enabled: false }
+		{ slug: 'fourier-wing', title: 'Fourier Wing', glyph: '🌀', enabled: true }
 	];
 
 	function skipMathAntechamber() {

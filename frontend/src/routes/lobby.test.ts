@@ -23,4 +23,18 @@ describe('Lobby', () => {
 		expect(link).not.toBeNull();
 		expect(link?.textContent ?? '').toContain('Unembedding Tower');
 	});
+
+	it('exposes Attention Hall as a clickable enter-link to /attention-hall', () => {
+		const { container } = render(Lobby);
+		const link = container.querySelector('a[href="/attention-hall"]');
+		expect(link).not.toBeNull();
+		expect(link?.textContent ?? '').toContain('Attention Hall');
+	});
+
+	it('exposes MLP Forge as a clickable enter-link to /mlp-forge', () => {
+		const { container } = render(Lobby);
+		const link = container.querySelector('a[href="/mlp-forge"]');
+		expect(link).not.toBeNull();
+		expect(link?.textContent ?? '').toContain('MLP Forge');
+	});
 });

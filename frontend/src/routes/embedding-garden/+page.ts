@@ -1,19 +1,11 @@
 import type { PageLoad } from './$types';
-import { CHECKPOINT_STEPS as GARDEN_CHECKPOINT_STEPS } from '$lib/garden.svelte';
+import { CHECKPOINT_STEPS } from '$lib/garden.svelte';
 
 export type EmbeddingSnapshot = {
 	step: number;
 	label: string;
 	points: { i: number; x: number; y: number }[];
 };
-
-/**
- * Re-exported for tests and the page component. Kept in sync with
- * `garden.svelte.ts`'s canonical list — same six steps for which we ship a
- * real `frontend/static/embeddings/step_NNNNN.json` produced by
- * `backend/scripts/export_embeddings.py`.
- */
-export const CHECKPOINT_STEPS = GARDEN_CHECKPOINT_STEPS;
 
 export const load: PageLoad = async ({ fetch }) => {
 	const snapshotsList = await Promise.all(

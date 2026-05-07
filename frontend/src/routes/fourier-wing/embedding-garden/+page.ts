@@ -13,7 +13,7 @@ export type EmbeddingSnapshot = {
  * live on a circle") fits a unit circle to the final, fully-grokked
  * checkpoint.
  */
-export const POSTGROK_STEP = 39999 as const;
+const POSTGROK_STEP = 39999 as const;
 
 export const load: PageLoad = async ({ fetch }) => {
 	const fname = `step_${String(POSTGROK_STEP).padStart(5, '0')}.json`;

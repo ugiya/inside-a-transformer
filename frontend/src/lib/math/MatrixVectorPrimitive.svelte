@@ -24,11 +24,20 @@
 	function expansionFor(rowIdx: number): string {
 		const row = A[rowIdx];
 		const terms = row.map((a, j) => `(${fmt(a)})·${fmt(x[j])}`).join(' + ');
-		return `y_${rowIdx + 1} = ${terms} = ${fmt(y[rowIdx])}`;
+		return `y_${rowIdx + 1} = row_${rowIdx + 1} · x = ${terms} = ${fmt(y[rowIdx])}`;
 	}
+
+	// Always show row 1's expansion by default so the formula is visible
+	// before the player discovers the hover affordance.
+	const shownRow = $derived(hoveredRow ?? 0);
 </script>
 
 <div class="matvec-primitive" data-test="matvec-primitive">
+	<p class="lede">
+		Each entry of <code>y</code> is one dot product: <strong>row <em>i</em> of A</strong> dotted with
+		the whole vector <strong>x</strong>. Three rows of A → three dot products → three entries of y.
+		<em>That's all "matrix × vector" is.</em>
+	</p>
 	<div class="grid">
 		<div class="block" data-test="matrix-block">
 			<div class="caption">A (3×4)</div>
@@ -87,10 +96,9 @@
 	</div>
 
 	<div class="expansion" data-test="expansion">
-		{#if hoveredRow !== null}
-			<code data-test="expansion-text">{expansionFor(hoveredRow)}</code>
-		{:else}
-			<code class="hint">hover a row of A</code>
+		<code data-test="expansion-text">{expansionFor(shownRow)}</code>
+		{#if hoveredRow === null}
+			<div class="hint">↑ row 1's dot product · hover any row of A to see the others</div>
 		{/if}
 	</div>
 </div>
@@ -156,10 +164,35 @@
 		font-family: 'SF Mono', Menlo, monospace;
 		color: var(--brass-bright);
 		font-size: 0.9rem;
-		min-height: 1.4em;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.3rem;
 	}
 	.expansion .hint {
 		color: var(--ivory-muted);
 		font-style: italic;
+		font-family: 'Iowan Old Style', 'Palatino', Georgia, serif;
+		font-size: 0.85rem;
+	}
+	.lede {
+		max-width: 60ch;
+		margin: 0 auto 0.5rem;
+		color: var(--ivory-muted);
+		font-size: 0.95rem;
+		line-height: 1.55;
+		text-align: center;
+	}
+	.lede strong {
+		color: var(--ivory);
+	}
+	.lede em {
+		font-style: italic;
+	}
+	.lede code {
+		font-family: 'SF Mono', Menlo, monospace;
+		background: rgba(13, 21, 24, 0.7);
+		padding: 0.05em 0.3em;
+		color: var(--brass-bright);
 	}
 </style>

@@ -29,6 +29,12 @@
 		sign === 'positive' ? 'aligned' : sign === 'negative' ? 'opposed' : 'perpendicular'
 	);
 
+	function fmt(n: number) {
+		return n.toFixed(2);
+	}
+	const term1 = $derived(aMath.x * bMath.x);
+	const term2 = $derived(aMath.y * bMath.y);
+
 	function clientToMath(clientX: number, clientY: number) {
 		if (!svgEl) return { x: 0, y: 0 };
 		const rect = svgEl.getBoundingClientRect();
@@ -136,6 +142,25 @@
 		/>
 		<text x={bHead.x + 10} y={bHead.y - 6} fill="var(--ivory)" font-size="12">b</text>
 	</svg>
+	<div class="vectors">
+		<div class="vec a">a = ({fmt(aMath.x)}, {fmt(aMath.y)})</div>
+		<div class="vec b">b = ({fmt(bMath.x)}, {fmt(bMath.y)})</div>
+	</div>
+	<div class="formula" data-test="dot-formula">
+		a · b
+		<span class="op">=</span>
+		<span class="term">a₁·b₁</span>
+		<span class="op">+</span>
+		<span class="term">a₂·b₂</span>
+		<span class="op">=</span>
+		<span class="term">({fmt(aMath.x)})·({fmt(bMath.x)})</span>
+		<span class="op">+</span>
+		<span class="term">({fmt(aMath.y)})·({fmt(bMath.y)})</span>
+		<span class="op">=</span>
+		<span class="term">{fmt(term1)} + {fmt(term2)}</span>
+		<span class="op">=</span>
+		<span class="result" class:pos={sign === 'positive'} class:neg={sign === 'negative'}>{fmt(dot)}</span>
+	</div>
 	<div class="readouts">
 		<span class="dot" class:pos={sign === 'positive'} class:neg={sign === 'negative'} data-test="dot-value"
 			>a · b = {dot.toFixed(2)}</span
@@ -143,6 +168,11 @@
 		<span data-test="theta-value">θ = {thetaDeg.toFixed(0)}°</span>
 		<span class="caption" data-test="dot-caption">{caption}</span>
 	</div>
+	<p class="hint">
+		Multiply the matching components, then add. Drag either arrowhead — the formula updates live.
+		The sign of <code>a·b</code> tells you whether the arrows are pointing in similar directions
+		(positive), opposite directions (negative), or at right angles (zero).
+	</p>
 </div>
 
 <style>
@@ -184,5 +214,62 @@
 	.caption {
 		font-style: italic;
 		color: var(--ivory-muted);
+	}
+	.vectors {
+		display: flex;
+		gap: 1.5rem;
+		justify-content: center;
+		font-family: 'SF Mono', Menlo, monospace;
+		font-size: 0.9rem;
+	}
+	.vec.a {
+		color: var(--brass-bright);
+	}
+	.vec.b {
+		color: var(--ivory);
+	}
+	.formula {
+		text-align: center;
+		font-family: 'SF Mono', Menlo, monospace;
+		font-size: 0.95rem;
+		color: var(--ivory);
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		align-items: center;
+		gap: 0.4rem;
+		padding: 0.6rem 0.5rem;
+		background: rgba(13, 21, 24, 0.6);
+		border: 1px solid var(--teal);
+	}
+	.formula .op {
+		color: var(--ivory-muted);
+	}
+	.formula .term {
+		color: var(--ivory);
+	}
+	.formula .result {
+		color: var(--ivory-muted);
+		font-weight: 600;
+	}
+	.formula .result.pos {
+		color: var(--brass-bright);
+	}
+	.formula .result.neg {
+		color: #d96a6a;
+	}
+	.hint {
+		max-width: 50ch;
+		margin: 0.5rem auto 0;
+		text-align: center;
+		font-size: 0.85rem;
+		color: var(--ivory-muted);
+		line-height: 1.5;
+	}
+	.hint code {
+		font-family: 'SF Mono', Menlo, monospace;
+		background: rgba(13, 21, 24, 0.7);
+		padding: 0.05em 0.3em;
+		color: var(--brass-bright);
 	}
 </style>

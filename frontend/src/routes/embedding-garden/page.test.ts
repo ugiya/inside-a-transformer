@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render } from '@testing-library/svelte';
 import EmbeddingGarden from './+page.svelte';
-import { load, CHECKPOINT_STEPS } from './+page';
+import { load } from './+page';
 import type { EmbeddingSnapshot } from './+page';
-import { garden } from '$lib/garden.svelte';
+import { garden, CHECKPOINT_STEPS } from '$lib/garden.svelte';
 
 function snap(step: number): EmbeddingSnapshot {
 	return {

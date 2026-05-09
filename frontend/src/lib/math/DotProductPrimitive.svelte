@@ -175,41 +175,174 @@
 	</p>
 
 	<aside class="explainer" data-test="dot-explainer">
-		<h3>What is this teaching?</h3>
+		<h3>What is a dot product, exactly?</h3>
 		<p>
-			The <strong>dot product</strong> takes two vectors and produces a <em>single number</em>.
-			That number measures how <strong>aligned</strong> the two vectors are:
+			A <strong>dot product</strong> is an operation that takes <em>two vectors</em>
+			and produces <em>one single number</em>. Notation: <code>a · b</code> (read
+			"a dot b"). The single number tells you something about the relationship between
+			the two arrows. Concretely, that "something" is called <strong>alignment</strong>.
+			This panel earns that name, not just asserts it.
+		</p>
+
+		<h3>Two equivalent formulas — the magic trick</h3>
+		<p>
+			The same number <code>a · b</code> can be computed two completely different ways.
+			Both ways always agree. <em>That's the whole reason this operation is
+			interesting.</em>
+		</p>
+
+		<p><strong>Formula 1 — the algebra view:</strong></p>
+		<pre class="dpformula"><span>a · b  =  a₁·b₁  +  a₂·b₂  +  ...  +  aₙ·bₙ</span>
+<span>       └─ multiply matching components, then add ─┘</span></pre>
+		<p>
+			This is the <em>recipe</em> — the formula bar above shows exactly this for the
+			two arrows you're dragging. It's how computers actually compute dot products:
+			fast, no trig needed.
+		</p>
+
+		<p><strong>Formula 2 — the geometry view:</strong></p>
+		<pre class="dpformula"><span>a · b  =  |a|  ·  |b|  ·  cos(θ)</span>
+<span>          ↑      ↑     ↑</span>
+<span>       length length  cosine of the angle</span>
+<span>       of a    of b   between the two arrows</span></pre>
+		<p>
+			This is the <em>meaning</em> — what the number actually represents geometrically.
+			And here's where <strong>alignment</strong> finally earns its name:
 		</p>
 		<ul>
-			<li><code>a · b</code> &gt; 0 → arrows point similar directions</li>
-			<li><code>a · b</code> = 0 → perpendicular (no shared direction)</li>
-			<li><code>a · b</code> &lt; 0 → opposite directions</li>
+			<li>
+				When the arrows point the <strong>same direction</strong>: angle θ = 0°,
+				<code>cos(θ) = 1</code>. Dot product is at its <em>maximum</em>
+				(= product of the two lengths). Maximum alignment → maximum dot product.
+			</li>
+			<li>
+				When the arrows are <strong>perpendicular</strong> (right angle): θ = 90°,
+				<code>cos(θ) = 0</code>. Dot product = <em>0</em>. Zero alignment → zero
+				dot product.
+			</li>
+			<li>
+				When the arrows point <strong>opposite directions</strong>: θ = 180°,
+				<code>cos(θ) = −1</code>. Dot product is at its <em>minimum</em>
+				(= negative of product of lengths). Anti-aligned → most negative.
+			</li>
 		</ul>
-		<h3>Why does this lab care about dot products?</h3>
 		<p>
-			Dot products are <strong>everywhere</strong> in a transformer:
+			<strong>That's why we call it "alignment".</strong> The dot product literally
+			scales with <code>cos(θ)</code>, and <code>cos(θ)</code> IS a measure of
+			alignment — it's the geometric definition. So <em>"how aligned are the
+			arrows?"</em> is a fair English translation of <code>a · b</code>.
+		</p>
+
+		<p>
+			The miracle — and the reason this is the most useful operation in ML — is that
+			the two formulas always agree. You can compute "alignment between two arrows"
+			using just a handful of multiplications and additions
+			(Formula&nbsp;1) — without ever computing an angle, a length, or a cosine.
+			Cheap and meaningful at the same time.
+		</p>
+
+		<h3>Try it</h3>
+		<ol>
+			<li>
+				Drag the arrows so they point in the <em>same</em> direction. Watch
+				<code>a · b</code> in the formula bar — it goes to its maximum positive
+				value. The angle <code>θ</code> in the readout drops toward 0°.
+			</li>
+			<li>
+				Drag them so they're <em>perpendicular</em> (90° between them). Watch
+				<code>a · b</code> drop to ≈ 0. The algebra says it (matching components
+				cancel), and the geometry says it (cos 90° = 0). Same number, two reasons.
+			</li>
+			<li>
+				Drag one to point <em>opposite</em> the other. <code>a · b</code> goes
+				negative; <code>θ</code> approaches 180°.
+			</li>
+		</ol>
+
+		<h3>Wait — is dot product the same as matrix multiplication?</h3>
+		<p>
+			Almost, and this is worth nailing down because the names blur. There's a
+			<em>family</em> of "multiplication-like" operations on vectors and matrices, all
+			built out of the dot product:
+		</p>
+		<table class="ops">
+			<thead>
+				<tr><th>Operation</th><th>Inputs</th><th>Output</th><th>How it's built</th></tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>scalar × scalar</td>
+					<td>3 × 4</td>
+					<td>a number (12)</td>
+					<td>regular multiplication</td>
+				</tr>
+				<tr class="atom">
+					<td><strong>vector · vector</strong> (this primitive)</td>
+					<td><code>a · b</code></td>
+					<td><strong>one number</strong></td>
+					<td>multiply matching pairs, sum</td>
+				</tr>
+				<tr>
+					<td>matrix × vector (next primitive, P3)</td>
+					<td><code>A · x</code></td>
+					<td>a vector</td>
+					<td>one dot product per row of A</td>
+				</tr>
+				<tr>
+					<td>matrix × matrix</td>
+					<td><code>A · B</code></td>
+					<td>a matrix</td>
+					<td>one dot product per (row of A, column of B) pair</td>
+				</tr>
+			</tbody>
+		</table>
+		<p>
+			<strong>Dot product is the <em>atom</em>.</strong> Matrix × vector and matrix × matrix
+			are constructions built from dot products. So when you understand alignment
+			(this primitive), you understand the building block of every "multiplication-like"
+			operation in linear algebra and every layer in every neural network.
+		</p>
+
+		<h3>Why does this lab care?</h3>
+		<p>
+			Because <strong>alignment = match score</strong>, and ML is mostly the business
+			of computing match scores. Every place a neural network "decides" something, a
+			dot product is being computed:
 		</p>
 		<ul>
 			<li>
-				<strong>Attention scores</strong> (👁 Attention Hall) are dot products: each
-				token's <em>query vector</em> dotted with every other token's <em>key vector</em>.
-				Aligned Q/K → high score → "pay attention here."
+				👁 <strong>Attention scores</strong>: "how relevant is THIS key to MY
+				query?" Answer = <code>query · key</code>. High alignment → high relevance →
+				"pay attention to this token." Every transformer attention head is computing
+				dot products between Q and K vectors.
 			</li>
 			<li>
-				<strong>Every neuron's output</strong> is a dot product: row of weights dotted
-				with the input vector. (See P3 next — matrix×vector is just a stack of dot
-				products.)
+				🔥 <strong>Every neuron's output</strong>: "does my input MATCH the pattern I
+				was trained to detect?" A neuron's weights <em>are</em> its pattern. The dot
+				product <code>weights · input</code> measures how aligned the input is with
+				that pattern. Aligned → neuron fires.
 			</li>
 			<li>
-				<strong>Token similarity</strong> (🌱 Embedding Garden) is measured by dot
-				products. After training, the embeddings of <code>3</code> and
-				<code>5</code> point in similar directions because they're "near" in the
-				model's mental map.
+				🌱 <strong>Token similarity</strong>: "are these two tokens similar in
+				meaning?" Compute <code>embedding(a) · embedding(b)</code>. High alignment
+				→ similar. After training, the embeddings of <code>3</code> and
+				<code>5</code> point in similar directions because they participate in
+				similar sums modulo 113 — the model literally encodes their kinship as
+				geometric alignment.
+			</li>
+			<li>
+				🌀 <strong>Fourier circuits</strong> (Room 8 punchline): the way the trained
+				model uses sin/cos features is by taking <em>dot products</em> between
+				token-position vectors and learned frequency directions. Every Fourier
+				coefficient in the final reveal is a dot product.
 			</li>
 		</ul>
+
 		<p class="forward">
-			Forward: this number — alignment, computed by multiply-and-sum — is the most-used
-			operation in the entire model.
+			Forward: when you next see <code>a · b</code>, you can read it three ways at
+			once — "multiply matching pairs and sum" (algebra), "how aligned are these"
+			(geometry), and "what's the match score" (ML). Same number. Three names. The
+			most-used operation in the entire model.
 		</p>
 	</aside>
 </div>
@@ -357,5 +490,55 @@
 		border-top: 1px dashed var(--teal);
 		padding-top: 0.6rem;
 		margin-top: 0.6rem;
+	}
+	.explainer ol {
+		margin: 0.25rem 0 0.5rem 1.25rem;
+		padding: 0;
+	}
+	.explainer ol li {
+		margin-bottom: 0.4rem;
+	}
+	.explainer .dpformula {
+		font-family: 'SF Mono', Menlo, monospace;
+		color: var(--brass-bright);
+		background: rgba(13, 21, 24, 0.6);
+		padding: 0.7rem 0.9rem;
+		margin: 0.25rem 0 0.5rem;
+		font-size: 0.85rem;
+		line-height: 1.55;
+		white-space: pre;
+		overflow-x: auto;
+	}
+	.explainer .dpformula span {
+		display: block;
+	}
+	.explainer table.ops {
+		width: 100%;
+		border-collapse: collapse;
+		font-size: 0.85rem;
+		margin: 0.5rem 0;
+	}
+	.explainer table.ops th,
+	.explainer table.ops td {
+		border: 1px solid var(--teal);
+		padding: 0.4rem 0.6rem;
+		text-align: left;
+		vertical-align: top;
+	}
+	.explainer table.ops th {
+		color: var(--brass-bright);
+		font-weight: 500;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		font-size: 0.78rem;
+		background: rgba(13, 21, 24, 0.5);
+	}
+	.explainer table.ops tr.atom td {
+		background: rgba(176, 137, 64, 0.1);
+		border-color: var(--brass);
+	}
+	.explainer table.ops code {
+		font-family: 'SF Mono', Menlo, monospace;
+		color: var(--brass-bright);
 	}
 </style>

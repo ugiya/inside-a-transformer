@@ -14,7 +14,10 @@
 
 	const compX = $derived(tipX / UNIT);
 	const compY = $derived(tipY / UNIT);
-	const magnitude = $derived(Math.sqrt(compX * compX + compY * compY));
+	const compXsq = $derived(compX * compX);
+	const compYsq = $derived(compY * compY);
+	const sumSq = $derived(compXsq + compYsq);
+	const magnitude = $derived(Math.sqrt(sumSq));
 
 	// Display screen-y (where the head circle is drawn): origin minus tipY (since
 	// math-y up is screen-y down).
@@ -47,6 +50,9 @@
 
 	function fmt(n: number) {
 		return n.toFixed(1);
+	}
+	function fmt2(n: number) {
+		return n.toFixed(2);
 	}
 </script>
 
@@ -114,6 +120,31 @@
 		<span data-test="vec-y">y = {fmt(compY)}</span>
 		<span data-test="vec-mag">|v| = {fmt(magnitude)}</span>
 	</div>
+
+	<div class="explainer" data-test="vector-explainer">
+		<p class="lede">
+			A <strong>vector</strong> is a list of numbers — here, two: <code>(x, y)</code>.
+			Geometrically, the brass arrow from origin to tip.
+			<em>Every "thing" you'll meet in this lab is a vector</em> — a token, a hidden state,
+			a Q/K/V — usually with more numbers (32, 100, 128…) instead of 2.
+		</p>
+
+		<p class="hint">
+			<strong><code>|v|</code></strong> reads "magnitude of <code>v</code>" — just the
+			<em>length</em> of the arrow. Computed by Pythagoras (yes, the school one):
+		</p>
+
+		<pre class="formula" data-test="vec-mag-formula"><span>|v| = √(x² + y²)</span>
+<span>    = √({fmt(compX)}² + {fmt(compY)}²)</span>
+<span>    = √({fmt2(compXsq)} + {fmt2(compYsq)})</span>
+<span>    = √{fmt2(sumSq)}</span>
+<span>    = {fmt(magnitude)}</span></pre>
+
+		<p class="forward">
+			Forward: vectors as <em>tokens</em> in 🌱 Embedding Garden, as <em>memory</em> in
+			🕯 Hall of Memory, as <em>Q/K/V</em> in 👁 Attention Hall. Same object, new costume.
+		</p>
+	</div>
 </div>
 
 <style>
@@ -141,5 +172,54 @@
 		color: var(--brass-bright);
 		font-size: 0.9rem;
 		justify-content: center;
+	}
+	.explainer {
+		max-width: 60ch;
+		margin: 0.5rem auto 0;
+		padding: 1rem 1.2rem;
+		border-left: 2px solid var(--brass);
+		background: rgba(13, 21, 24, 0.4);
+		color: var(--ivory-muted);
+		font-size: 0.92rem;
+		line-height: 1.55;
+	}
+	.explainer p {
+		margin: 0 0 0.75rem;
+	}
+	.explainer p:last-child {
+		margin: 0;
+	}
+	.explainer strong {
+		color: var(--ivory);
+	}
+	.explainer em {
+		color: var(--brass-bright);
+		font-style: italic;
+	}
+	.explainer code {
+		font-family: 'SF Mono', Menlo, monospace;
+		color: var(--brass-bright);
+	}
+	.explainer .formula {
+		font-family: 'SF Mono', Menlo, monospace;
+		color: var(--brass-bright);
+		background: rgba(13, 21, 24, 0.6);
+		padding: 0.75rem 1rem;
+		margin: 0 0 0.75rem;
+		font-size: 0.88rem;
+		line-height: 1.5;
+		white-space: pre;
+		overflow-x: auto;
+	}
+	.explainer .formula span {
+		display: block;
+	}
+	.explainer .forward {
+		font-size: 0.85rem;
+		color: var(--ivory-muted);
+		font-style: italic;
+		border-top: 1px dashed var(--teal);
+		padding-top: 0.75rem;
+		margin-top: 0.75rem;
 	}
 </style>

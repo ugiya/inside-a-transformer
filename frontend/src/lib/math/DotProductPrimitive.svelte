@@ -173,6 +173,45 @@
 		The sign of <code>a·b</code> tells you whether the arrows are pointing in similar directions
 		(positive), opposite directions (negative), or at right angles (zero).
 	</p>
+
+	<aside class="explainer" data-test="dot-explainer">
+		<h3>What is this teaching?</h3>
+		<p>
+			The <strong>dot product</strong> takes two vectors and produces a <em>single number</em>.
+			That number measures how <strong>aligned</strong> the two vectors are:
+		</p>
+		<ul>
+			<li><code>a · b</code> &gt; 0 → arrows point similar directions</li>
+			<li><code>a · b</code> = 0 → perpendicular (no shared direction)</li>
+			<li><code>a · b</code> &lt; 0 → opposite directions</li>
+		</ul>
+		<h3>Why does this lab care about dot products?</h3>
+		<p>
+			Dot products are <strong>everywhere</strong> in a transformer:
+		</p>
+		<ul>
+			<li>
+				<strong>Attention scores</strong> (👁 Attention Hall) are dot products: each
+				token's <em>query vector</em> dotted with every other token's <em>key vector</em>.
+				Aligned Q/K → high score → "pay attention here."
+			</li>
+			<li>
+				<strong>Every neuron's output</strong> is a dot product: row of weights dotted
+				with the input vector. (See P3 next — matrix×vector is just a stack of dot
+				products.)
+			</li>
+			<li>
+				<strong>Token similarity</strong> (🌱 Embedding Garden) is measured by dot
+				products. After training, the embeddings of <code>3</code> and
+				<code>5</code> point in similar directions because they're "near" in the
+				model's mental map.
+			</li>
+		</ul>
+		<p class="forward">
+			Forward: this number — alignment, computed by multiply-and-sum — is the most-used
+			operation in the entire model.
+		</p>
+	</aside>
 </div>
 
 <style>
@@ -271,5 +310,52 @@
 		background: rgba(13, 21, 24, 0.7);
 		padding: 0.05em 0.3em;
 		color: var(--brass-bright);
+	}
+	.explainer {
+		max-width: 64ch;
+		margin: 0.5rem auto 0;
+		padding: 1rem 1.25rem;
+		border-left: 2px solid var(--brass);
+		background: rgba(13, 21, 24, 0.45);
+		color: var(--ivory-muted);
+		font-size: 0.9rem;
+		line-height: 1.55;
+	}
+	.explainer h3 {
+		font-size: 0.92rem;
+		font-weight: 500;
+		color: var(--ivory);
+		margin: 0.75rem 0 0.4rem;
+	}
+	.explainer h3:first-child {
+		margin-top: 0;
+	}
+	.explainer p {
+		margin: 0 0 0.5rem;
+	}
+	.explainer ul {
+		margin: 0.25rem 0 0.5rem 1.25rem;
+		padding: 0;
+	}
+	.explainer ul li {
+		margin-bottom: 0.3rem;
+	}
+	.explainer strong {
+		color: var(--ivory);
+	}
+	.explainer em {
+		color: var(--brass-bright);
+		font-style: italic;
+	}
+	.explainer code {
+		font-family: 'SF Mono', Menlo, monospace;
+		color: var(--brass-bright);
+	}
+	.explainer .forward {
+		font-size: 0.85rem;
+		font-style: italic;
+		border-top: 1px dashed var(--teal);
+		padding-top: 0.6rem;
+		margin-top: 0.6rem;
 	}
 </style>

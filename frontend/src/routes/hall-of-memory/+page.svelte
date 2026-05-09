@@ -1,4 +1,6 @@
 <script lang="ts">
+	import LastReceiver from '$lib/last-receiver/LastReceiver.svelte';
+
 	// Static prologue scene. No props — pure click-through.
 	// A chain of N RNN cells passes a memory packet rightward; opacity decays
 	// linearly so the player sees the memory fade as it travels — the bottleneck
@@ -25,6 +27,8 @@
 		<a class="back" href="/">← rooms</a>
 		<h1>🕯 Hall of Memory</h1>
 	</header>
+
+	<LastReceiver />
 
 	<section class="explainer" data-test="rnn-explainer">
 		<h2>What's actually in each cell?</h2>

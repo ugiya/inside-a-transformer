@@ -52,6 +52,102 @@
 		</p>
 	</header>
 
+	<section class="explainer" data-test="garden-explainer">
+		<h2>What is this room teaching?</h2>
+		<p>
+			This is the <strong>first thing a transformer does</strong> with any input: turn a
+			discrete <em>token</em> (here, an integer like <code>7</code>) into a
+			<em>vector</em> (a list of 128 numbers). That conversion is called an
+			<strong>embedding lookup</strong>. The whole "garden" metaphor is:
+			each integer 0–112 needs a "vessel" (a row in a table) where its 128-number vector
+			lives. <em>"Plant a lookup"</em> = give that integer its vector. Click a vessel, plant
+			it, that integer now has an embedding.
+		</p>
+
+		<h3>Why a <em>ring</em>?</h3>
+		<p>
+			Two reasons, both load-bearing:
+		</p>
+		<ol>
+			<li>
+				<strong>The task lives on a ring.</strong> This whole lab teaches one task:
+				<code>(a + b) mod 113</code> — modular addition. Modular arithmetic is
+				<em>cyclic</em>: <code>112 + 1 = 0</code> (it wraps around, like a clock).
+				So the integers <code>0–112</code> aren't a line — they live on a circle.
+				Drawing them as 113 vessels in a ring makes that visible.
+			</li>
+			<li>
+				<strong>The model will rediscover the ring.</strong> When training starts the
+				model has no idea its inputs are cyclic. By the end, the embeddings have
+				literally arranged themselves in a ring (see the right panel at step 39999).
+				The room is asking you to <em>watch the model learn the geometry of the task</em>.
+			</li>
+		</ol>
+
+		<h3>Why <em>113</em> specifically?</h3>
+		<p>
+			113 is <strong>prime</strong>. In modular arithmetic, primes give the cleanest
+			cycle structure — no smaller sub-cycles to muddle the learning. 113 was the exact
+			number used in <em>Nanda et al. (2023)</em>, the paper this lab re-derives. Pick
+			any other prime and the geometry would still work; 113 is just the canonical
+			choice.
+		</p>
+
+		<h3>What does <em>"plant a lookup"</em> mean, mechanically?</h3>
+		<p>
+			Inside the model there's a giant table called the <strong>embedding matrix</strong>
+			— shape <code>114 × 128</code> (113 integers + 1 special <code>=</code> token,
+			128 numbers per row). When the model sees the integer <code>7</code>, it does
+			one operation: <em>"go to row 7 of this table, return those 128 numbers."</em>
+			That's the lookup. Each vessel in the ring stands for one row of that table.
+			Clicking a vessel reveals/instantiates that row.
+		</p>
+
+		<h3>What are the <em>steps</em> in the right panel?</h3>
+		<p>
+			<strong>Training steps.</strong> One step = one round of "look at some training
+			data, compute the error, nudge every weight in the model a little bit to reduce
+			the error." Nanda's setup runs for <strong>40,000 steps</strong> total. The buttons
+			<code>0 / 1000 / 5000 / 10000 / 18000 / 39999</code> are snapshots: where the
+			embeddings live at each of those moments, so you can scrub through training
+			history.
+		</p>
+
+		<h3>What is the connection between <em>The Ring</em> (left) and <em>Where the vectors live</em> (right)?</h3>
+		<p>
+			They show <strong>the same 113 things</strong>, two different ways:
+		</p>
+		<ul>
+			<li>
+				<strong>Left — "structure given by the task":</strong> 113 vessels arranged
+				in a ring because <em>that's how integers under mod 113 are organized</em>.
+				This view never changes. It's the ground truth.
+			</li>
+			<li>
+				<strong>Right — "structure learned by the model":</strong> the actual 128-D
+				embedding vector of each of those 113 integers, projected down to 2D so we
+				can see them on screen. This view <em>does</em> change — at step 0 it's a
+				random scatter (the model knows nothing yet); by step 39999 the dots have
+				arranged themselves in a ring.
+			</li>
+		</ul>
+		<p>
+			<strong>The punchline:</strong> the right panel ends up looking like the left
+			panel. The model, given only pairs <code>(a, b, a+b mod 113)</code> as training
+			data, <em>discovers on its own</em> that 0–112 form a cycle. The ring on the
+			right at step 39999 is the model saying "I figured out these inputs are on a
+			circle." That's the seed of the entire Fourier story you'll meet in
+			🌀 Fourier Wing.
+		</p>
+
+		<p class="forward">
+			Forward: this room creates the embedding table. Every other room <em>uses</em> it.
+			In 👁 Attention Hall, the Q/K/V vectors are computed from these very embeddings;
+			in 🔥 MLP Forge, the embedding-derived signals get reshuffled; in 🌀 Fourier Wing,
+			you'll see that the ring you watched form here is doing all the math.
+		</p>
+	</section>
+
 	<section class="lab">
 		<div class="panel">
 			<div class="panel-head">
@@ -169,6 +265,65 @@
 		max-width: 60ch;
 		color: var(--ivory-muted);
 		line-height: 1.5;
+	}
+	.explainer {
+		max-width: 72ch;
+		margin: 1.5rem 0 0;
+		padding: 1.25rem 1.5rem;
+		border-left: 2px solid var(--brass);
+		background: rgba(13, 21, 24, 0.45);
+		color: var(--ivory-muted);
+		font-size: 0.95rem;
+		line-height: 1.6;
+	}
+	.explainer h2 {
+		font-size: 1.05rem;
+		font-weight: 500;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: var(--brass-bright);
+		margin: 0 0 0.75rem;
+	}
+	.explainer h3 {
+		font-size: 1rem;
+		font-weight: 500;
+		color: var(--ivory);
+		margin: 1.25rem 0 0.5rem;
+	}
+	.explainer p {
+		margin: 0 0 0.75rem;
+	}
+	.explainer p:last-child {
+		margin: 0;
+	}
+	.explainer strong {
+		color: var(--ivory);
+	}
+	.explainer em {
+		color: var(--brass-bright);
+		font-style: italic;
+	}
+	.explainer code {
+		font-family: 'SF Mono', Menlo, monospace;
+		color: var(--brass-bright);
+		font-size: 0.9em;
+	}
+	.explainer ol,
+	.explainer ul {
+		margin: 0.25rem 0 0.75rem 1.25rem;
+		padding: 0;
+	}
+	.explainer ol li,
+	.explainer ul li {
+		margin-bottom: 0.5rem;
+	}
+	.explainer .forward {
+		font-size: 0.88rem;
+		color: var(--ivory-muted);
+		font-style: italic;
+		border-top: 1px dashed var(--teal);
+		padding-top: 0.75rem;
+		margin-top: 1rem;
 	}
 	.lab {
 		display: grid;

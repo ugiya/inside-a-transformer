@@ -101,6 +101,53 @@
 			<div class="hint">↑ row 1's dot product · hover any row of A to see the others</div>
 		{/if}
 	</div>
+
+	<aside class="explainer" data-test="matvec-explainer">
+		<h3>What is this teaching?</h3>
+		<p>
+			A <strong>matrix × vector</strong> turns one vector into another vector. Concretely:
+			a matrix <code>A</code> with <em>m</em> rows and <em>n</em> columns can take a
+			vector <code>x</code> with <em>n</em> entries and produce a vector <code>y</code>
+			with <em>m</em> entries. The number of rows of <code>A</code> = the size of the
+			output. Each row of <code>A</code> dotted with <code>x</code> = one entry of
+			<code>y</code>.
+		</p>
+
+		<h3>Why does this lab care?</h3>
+		<p>
+			This is <strong>the atomic operation of every neural network layer</strong>.
+			Every transformer layer, every RNN cell, every MLP, every attention head — all
+			of them are repeated applications of <code>y = A·x + b</code> (matrix × vector,
+			plus a bias) followed by a nonlinearity like <code>tanh</code> or <code>ReLU</code>.
+		</p>
+		<ul>
+			<li>
+				🌱 <strong>Embedding lookup</strong> = matrix × one-hot vector (it picks one
+				row of the embedding matrix).
+			</li>
+			<li>
+				👁 <strong>Computing Q/K/V</strong> = three separate matrix × vector
+				operations applied to each token's embedding.
+			</li>
+			<li>
+				🕯 <strong>Recurrent step</strong> = two matrix × vector operations
+				(<code>W_x · x</code> + <code>W_h · h</code>) summed and squashed.
+			</li>
+			<li>
+				🔥 <strong>MLP layer</strong> = literally <code>y = A · ReLU(B · x + c) + d</code>
+				— two matrix × vectors with a nonlinearity sandwich.
+			</li>
+			<li>
+				🗼 <strong>Unembedding</strong> = the final hidden state matrix-multiplied to
+				produce vocab logits.
+			</li>
+		</ul>
+		<p class="forward">
+			Once you can read <code>y = A · x</code>, every layer in any neural network is
+			just "do this, then a nonlinearity, then do this again." The whole transformer
+			is layered matrix × vectors.
+		</p>
+	</aside>
 </div>
 
 <style>
@@ -194,5 +241,52 @@
 		background: rgba(13, 21, 24, 0.7);
 		padding: 0.05em 0.3em;
 		color: var(--brass-bright);
+	}
+	.explainer {
+		max-width: 64ch;
+		margin: 0.5rem auto 0;
+		padding: 1rem 1.25rem;
+		border-left: 2px solid var(--brass);
+		background: rgba(13, 21, 24, 0.45);
+		color: var(--ivory-muted);
+		font-size: 0.9rem;
+		line-height: 1.55;
+	}
+	.explainer h3 {
+		font-size: 0.92rem;
+		font-weight: 500;
+		color: var(--ivory);
+		margin: 0.75rem 0 0.4rem;
+	}
+	.explainer h3:first-child {
+		margin-top: 0;
+	}
+	.explainer p {
+		margin: 0 0 0.5rem;
+	}
+	.explainer ul {
+		margin: 0.25rem 0 0.5rem 1.25rem;
+		padding: 0;
+	}
+	.explainer ul li {
+		margin-bottom: 0.3rem;
+	}
+	.explainer strong {
+		color: var(--ivory);
+	}
+	.explainer em {
+		color: var(--brass-bright);
+		font-style: italic;
+	}
+	.explainer code {
+		font-family: 'SF Mono', Menlo, monospace;
+		color: var(--brass-bright);
+	}
+	.explainer .forward {
+		font-size: 0.85rem;
+		font-style: italic;
+		border-top: 1px dashed var(--teal);
+		padding-top: 0.6rem;
+		margin-top: 0.6rem;
 	}
 </style>

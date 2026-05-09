@@ -23,6 +23,53 @@
 		<p class="sub">A point-and-click lab for transformer architecture and mechanistic interpretability.</p>
 	</header>
 
+	<section class="north-star" data-test="lab-goal">
+		<h2>What is this lab actually for?</h2>
+		<p>
+			Every room you'll walk through is in service of <strong>one ultimate goal</strong>:
+			<em>re-derive Nanda et al. (2023), <a href="https://arxiv.org/abs/2301.05217" target="_blank" rel="noopener">"Progress measures for grokking via mechanistic interpretability."</a></em>
+		</p>
+		<p>
+			Concretely, that means:
+		</p>
+		<ol>
+			<li>
+				Train a tiny transformer on one task: <strong>modular addition</strong> —
+				<code>(a + b) mod 113</code>. Inputs are integers <code>0–112</code>; output
+				is their sum modulo 113. <em>That's the only thing the model ever does.</em>
+			</li>
+			<li>
+				Watch it <strong>"grok"</strong> — i.e. suddenly generalize after a long
+				period of seemingly-memorizing the training set.
+			</li>
+			<li>
+				Open the trained model up and discover that its internal computation is
+				built out of <strong>sin and cos waves on the unit circle</strong>, at five
+				specific frequencies <code>k ∈ {'{'}14, 35, 41, 42, 52{'}'}</code>. The model
+				represents each integer <code>n</code> as points on rotating wheels, and
+				addition becomes <em>"add the angles"</em>. This is the
+				<strong>Fourier circuit</strong> reveal in 🌀 Fourier Wing.
+			</li>
+		</ol>
+		<p>
+			Every room teaches one part of <em>how a transformer works</em>, and every visual
+			motif (rings, wheels, sin/cos waves, angles) you'll meet along the way <strong>is
+			retroactively a Fourier circuit</strong>. The lab is one long planted setup for
+			the punchline in Room 8.
+		</p>
+		<p class="sequence">
+			<strong>The journey:</strong>
+			📐 build the math vocabulary →
+			🌱 turn integers into vectors →
+			🕯 see how the old way (RNN) loses memory →
+			👁 every word looks at every word (attention) →
+			🔥 squeeze the signal through a hidden layer (MLP) →
+			🗼 turn vectors back into next-word predictions →
+			🔔 watch grokking happen →
+			🌀 the punchline: it was Fourier all along.
+		</p>
+	</section>
+
 	<ul class="rooms">
 		{#each rooms as r (r.slug)}
 			<li class:enabled={r.enabled}>
@@ -65,8 +112,61 @@
 		letter-spacing: 0.02em;
 	}
 	.sub {
-		margin: 0 0 3rem;
+		margin: 0 0 1.5rem;
 		color: var(--ivory-muted);
+	}
+	.north-star {
+		margin: 0 0 2.5rem;
+		padding: 1.25rem 1.5rem;
+		border-left: 2px solid var(--brass);
+		background: rgba(13, 21, 24, 0.45);
+		color: var(--ivory-muted);
+		font-size: 0.95rem;
+		line-height: 1.6;
+	}
+	.north-star h2 {
+		font-size: 1.05rem;
+		font-weight: 500;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: var(--brass-bright);
+		margin: 0 0 0.75rem;
+	}
+	.north-star p {
+		margin: 0 0 0.75rem;
+	}
+	.north-star p:last-child {
+		margin: 0;
+	}
+	.north-star ol {
+		margin: 0.25rem 0 0.75rem 1.25rem;
+		padding: 0;
+	}
+	.north-star ol li {
+		margin-bottom: 0.5rem;
+	}
+	.north-star strong {
+		color: var(--ivory);
+	}
+	.north-star em {
+		color: var(--brass-bright);
+		font-style: italic;
+	}
+	.north-star code {
+		font-family: 'SF Mono', Menlo, monospace;
+		color: var(--brass-bright);
+		font-size: 0.9em;
+	}
+	.north-star a {
+		color: var(--brass-bright);
+		text-decoration: underline;
+	}
+	.north-star .sequence {
+		font-size: 0.88rem;
+		font-style: italic;
+		border-top: 1px dashed var(--teal);
+		padding-top: 0.75rem;
+		margin-top: 0.75rem;
 	}
 	.rooms {
 		list-style: none;

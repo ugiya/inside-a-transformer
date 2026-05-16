@@ -1,105 +1,87 @@
 # Transformer Rooms
 
-A 2D point-and-click interactive lab game that teaches transformer architecture and mechanistic interpretability through six painted rooms — culminating in re-deriving Nanda et al.'s "Progress measures for grokking via mechanistic interpretability."
+> **An interactive lab where you build a 1-layer transformer by hand, watch it suddenly _grok_ modular addition, and re-derive Nanda et al.'s Fourier circuits — all from inside painted rooms.**
 
-**Status:** pre-PRD. Design locked via the design grill on 2026-05-02. PRD pending via the PRD generation step.
+![Grokking spike curve — training loss collapses long after train accuracy hits 100%, revealing the moment the model "groks"](backend/spike_curves_v2.png)
 
-## Premise
+*The grokking phenomenon: the model fits the training set early but only generalises ~40,000 epochs later, when the Fourier circuits crystallise.*
 
-You arrive in a glass conservatory at dawn. There are 113 small empty vessels arranged in a ring. By the end of the game, you will have built a transformer, watched it grok, and re-discovered the Fourier circuits hidden in the walls of every room you walked through.
+---
 
-## Locked design (eight decisions from the grill)
+## What it is
 
-1. **Arc:** hybrid, build-leaning — construct each component, then briefly observe what it does on the running model. No mechinterp until Level 6.
-2. **World:** one task, one world — modular addition `(a + b) mod p` with `p=113`, Nanda's exact config.
-3. **Platform:** local web — frontend + Python backend, audience = single user (you), no public deployment in v1.
-4. **Level unit:** spatial rooms that are also build-then-probe labs.
-5. **Slate (7 rooms):**
-   1. 🌱 Embedding Garden
-   1.5. 🕯 Hall of Memory *(RNN/LSTM prologue, thin scene)*
-   2. 👁 Attention Hall
-   3. 🔥 MLP Forge
-   4. 🗼 Unembedding Tower *(thin scene in v1)*
-   5. 🔔 Grokking Bell *(replay in v1, live training in v2)*
-   6. 🌀 Fourier Wing *(mechinterp finale)*
-6. **Visual language:** clockpunk core + sacred-geometry tilework wallpaper + ink-and-color-wash medium. Recurring motifs (number ring, nested wheels, light beams, tilework) are planted early and retroactively become Fourier circuits in Level 6.
-7. **Stack:** SvelteKit (Svelte 5) + TypeScript + SVG/Framer-equivalent (svelte/transition + Motion One) + Canvas-where-needed | FastAPI + PyTorch + TransformerLens (`HookedTransformer`) | REST + 1 WebSocket (stretch) | static-served generated art with pinned style prefix | localStorage state.
-8. **Scope:** see `MVP / Stretch / Out-of-scope` below.
+`transformer-rooms` is a point-and-click adventure inspired by *Machinarium*, *The Witness*, and *Distill.pub* — but instead of solving puzzles, you build the parts of a transformer one room at a time. By the final room (the Fourier Wing), the painted motifs you've been walking past — number rings, nested wheels, sacred geometry tilework — turn out to be the actual Fourier circuits the model is using internally.
 
-## Model spec (locked, exact Nanda config — verified in `research.md` §1)
+The model is the exact configuration from **Neel Nanda et al., "Progress measures for grokking via mechanistic interpretability" (2023)** — `(a + b) mod 113`, 1 layer, attention + MLP, no LayerNorm, trained until grokking. Reaching grokking reproduces the paper's central finding.
 
-- 1-layer transformer, **attention + MLP** (ReLU). Not attention-only — the canonical Fourier circuit lives in the MLP.
-- `d_model=128`, `n_heads=4`, `d_head=32`, `d_mlp=512`, `d_vocab=114` (113 numbers + `=` token), `n_ctx=3`.
-- LayerNorm: none. Positional encoding: learned.
-- Optimizer: AdamW, `lr=1e-3`, `weight_decay=1.0`, full-batch GD, 40,000 epochs.
-- Train fraction: 30% of all `(a, b)` pairs.
-- **Five key frequencies** for `p=113`: `k ∈ {14, 35, 41, 42, 52}` — each one is a visual motif planted across rooms 1–4 and revealed in the Fourier Wing.
-- Reaching grokking on this config reproduces Nanda et al. "Progress measures for grokking via mechanistic interpretability."
+This is a portfolio piece exploring three things I care about together:
+1. **Mechanistic interpretability** — making the inside of a transformer legible.
+2. **Manipulable mathematics** (Bret Victor / Distill.pub tradition) — math you can push on, not just read.
+3. **Painted, deliberate UX** — clockpunk + ink-and-color-wash, no twitch, ~10–15 minutes per room.
 
-## Genre
+## Status
 
-Not a platformer. Closest references:
-- **Machinarium** (point-and-click adventure, painted scenes, no avatar).
-- **The Witness** (puzzles ARE the learning).
-- **Bret Victor / Distill.pub** (manipulable mathematics).
+Active development. As of 2026-05:
+- ✅ Backend: PyTorch + TransformerLens model loader, forward/probe executors, REST API (`/forward`, `/probe`, `/checkpoint/{step}`), comprehensive tests, MPS/CPU parity verified.
+- ✅ Training: full grokking run completed, 6 checkpoints (steps 0 / 1k / 5k / 10k / 18k / 39,999) exported, spike-curve metrics captured for two runs.
+- ✅ Frontend: 8 rooms scaffolded as SvelteKit routes — Embedding Garden, Hall of Memory, Attention Hall, MLP Forge, Unembedding Tower, Grokking Bell, Fourier Wing (with sub-scenes), Math Antechamber.
+- ✅ Math primitives: dot product, matrix×vector, vector, sin/cos, unit circle — interactive Svelte components.
+- ✅ Primer interactions: activation patching, cross-entropy, logits, softmax, weight decay — atomic explainables.
+- 🚧 Polish, narrative voice, Grokking Bell live-training stretch goal.
 
-Cursor-only. No keyboard. No twitch. ~10–15 minutes per room.
+## Tech stack
 
-## Visual style prefix (use for all `/art` generations)
+| Layer | Stack |
+|-------|-------|
+| Frontend | SvelteKit (Svelte 5), TypeScript, SVG + Canvas, Motion One |
+| Backend | FastAPI, PyTorch, TransformerLens (`HookedTransformer`) |
+| Training | AdamW, full-batch GD, weight_decay=1.0, 40,000 epochs (Nanda config exactly) |
+| State | localStorage (no auth, no backend persistence) |
+| Tests | vitest (frontend), pytest (backend) |
 
-> *painted ink and color wash illustration, deep teal and warm brass palette with ivory off-white, slightly hand-drawn imperfection, slightly elevated 3/4 view of an architectural interior, no text, no logos, painterly brushwork*
+## Try it locally
 
-## MVP / Stretch / Out-of-scope
+```bash
+# Backend (Python + PyTorch)
+cd backend
+uv sync
+uv run uvicorn transformer_rooms.api:app --reload    # localhost:8000
+# Pre-trained checkpoints ship in the repo — no GPU required for inference.
+# To re-run training: uv run python train_spike.py
 
-### MVP (v1 ships with)
-- All 7 rooms exist as scenes.
-- 5 rooms fully interactive: Embedding Garden, Attention Hall, MLP Forge, Grokking Bell, Fourier Wing.
-- 2 rooms thin: Hall of Memory (prologue, click-through), Unembedding Tower (one slider, 2-min scene).
-- Trained model + multiple checkpoints shipped.
-- Backend: `/forward`, `/probe`, `/checkpoint/{step}`. No WebSocket in v1.
-- Discovery challenges accept-on-attempt, not gated by correctness.
-- Training replayed (3 pre-recorded trajectories), not live.
-- Audio: ambient room loops. No voiced narration.
-- Save state: localStorage.
-- Desktop, mouse-only, modern browsers.
-
-### Stretch (priority order)
-1. Live training in Grokking Bell with hyperparameter knobs (WebSocket).
-2. Hall of Memory becomes interactive (drag a memory packet along the chain).
-3. Unembedding Tower as a full room.
-4. Voiced narration (ElevenLabs).
-5. Multi-layer model option (induction heads, copying tasks).
-6. Replay sharing (export trajectory as URL).
-7. Mobile/touch.
-
-### Out-of-scope (by design)
-- Multiplayer / social.
-- Score / leaderboards / XP.
-- Procedural levels.
-- A second task or world.
-- 3D rendering.
-- Native apps.
-- Runtime AI generation.
-- Monetization.
-
-## Repo layout (planned)
-
+# Frontend (SvelteKit)
+cd frontend
+pnpm install
+pnpm dev    # localhost:5173
 ```
-transformer-rooms/
-├── README.md
-├── .gitignore
-├── PRD.md                  # to be filled by the PRD generation step
-├── frontend/               # SvelteKit + TS
-│   ├── src/routes/         # one route per room
-│   ├── src/lib/            # SVG components, motion utils, API client
-│   └── static/art/         # /art outputs by room
-└── backend/                # FastAPI + PyTorch + TransformerLens
-    ├── main.py             # endpoints
-    ├── model.py            # HookedTransformer config
-    ├── train.py            # offline training + checkpoint dump
-    └── checkpoints/        # gitignored; downloaded or regenerated
-```
+
+Open `http://localhost:5173` and start in the Embedding Garden.
+
+## Architecture & design
+
+Three deep-dive documents capture the locked design — pre-PRD level rigour:
+
+- **[`research.md`](research.md)** — Nanda config verification, model spec derivation, the five canonical frequencies (k ∈ {14, 35, 41, 42, 52}) and why each one becomes a visual motif planted across rooms 1–4.
+- **[`calibration.md`](calibration.md)** — training run calibration, hyperparameter sensitivity, checkpoint selection.
+- **[`transformer-rooms-design-phase-1.md`](transformer-rooms-design-phase-1.md)** — eight locked design decisions: arc shape, world choice, room slate, visual language, platform scope, level unit, stack, MVP boundary.
+- **[`transformer-rooms-step-b-prototype.md`](transformer-rooms-step-b-prototype.md)** — prototype-phase decisions and validations.
+- **[`docs/math-antechamber-design.md`](docs/math-antechamber-design.md)** — math primer room: pedagogical scaffolding before the conceptual rooms.
+
+## Visual language
+
+Painted ink-and-color-wash, deep teal + warm brass + ivory off-white palette, 3/4 architectural interior view, no text, no logos. All `/art` generations share this style prefix so rooms feel of-a-piece. The recurring motifs (number ring, nested wheels, light beams, tilework) are planted in rooms 1–4 and retroactively explained in the Fourier Wing as the literal structure of the model's learned circuit.
+
+References:
+- **[Machinarium](https://amanita-design.net/machinarium/)** — painted-scene point-and-click, no avatar.
+- **[The Witness](https://www.thewitnesspuzzle.com/)** — puzzles ARE the learning.
+- **[Distill.pub](https://distill.pub/)** — manipulable mathematics, especially circuits work.
+- **[TransformerLens](https://transformerlensorg.github.io/TransformerLens/)** — the library that makes this kind of intervention possible.
+- **Nanda, N., Chan, L., Lieberum, T., Smith, J., & Steinhardt, J. (2023).** *Progress measures for grokking via mechanistic interpretability.* arXiv:2301.05217.
 
 ## License
 
-TBD.
+MIT (pending file commit).
+
+---
+
+*Built as a personal experiment in pedagogy + mechinterp. If you stumble in via the Fourier Wing and want to chat about circuits, my contact is on my [GitHub profile](https://github.com/ugiya).*

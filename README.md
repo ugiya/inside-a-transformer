@@ -1,4 +1,4 @@
-# Transformer Rooms
+# Inside a Transformer
 
 > **An interactive lab where you build a 1-layer transformer by hand, watch it suddenly _grok_ modular addition, and re-derive Nanda et al.'s Fourier circuits — all from inside painted rooms.**
 

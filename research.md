@@ -1,6 +1,6 @@
 # research.md
 
-Cached research from phase 2 of the design workflow. Verified against live sources on 2026-05-02. This file is the canonical reference for any decision that depends on (a) Nanda's grokking paper, (b) the TransformerLens API, (c) Svelte 5 / SvelteKit 2 / Motion One, or (d) reference works for visual / pedagogical inspiration.
+Cached research from the project's design phase, verified against live sources on 2026-05-02. This file is the canonical reference for any decision that depends on (a) Nanda's grokking paper, (b) the TransformerLens API, (c) Svelte 5 / SvelteKit 2 / Motion One, or (d) reference works for visual / pedagogical inspiration.
 
 When this file disagrees with my training-data memory, this file is right.
 
@@ -388,7 +388,7 @@ What survives, what changes, what's new.
 ### New (not in the grill)
 - **Study list before PRD/code:** bbycroft.net/llm, Ladder of Abstraction, The Witness (writeups), Gorogoa (gameplay videos), Building Blocks of Interpretability. ~2 hours total. Required reading.
 - **Possible Baba-Is-You mechanic for Level 6:** rearrangeable rule tiles (e.g., "HEAD-0 IS COPY" → swap to "HEAD-0 IS INDUCTION") that physically reconfigure a circuit. Worth a 1-hour prototype before committing.
-- **Acceptance criteria pass needed before the PRD generation step** — the grill defined "discovery challenges" but didn't lock per-room acceptance criteria as PRD/TDD inputs. Defer to Step C.
+- **Acceptance criteria pass needed before PRD** — the design grill defined "discovery challenges" but didn't lock per-room acceptance criteria as PRD/TDD inputs. Deferred to a follow-up acceptance-criteria pass.
 
 ### Confirmed not blocked
 - Nothing in the research reveals a blocker. The plan survives contact with reality.

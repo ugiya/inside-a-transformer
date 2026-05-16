@@ -59,13 +59,12 @@ Open `http://localhost:5173` and start in the Embedding Garden.
 
 ## Architecture & design
 
-Three deep-dive documents capture the locked design — pre-PRD level rigour:
+Four documents capture the locked design — pre-PRD level rigour:
 
+- **[`DESIGN.md`](DESIGN.md)** — eight locked design decisions, pedagogical on-ramp rationale, validated milestones (grokking reproduced, art style validated, MPS parity), and architectural anchors for contributors.
 - **[`research.md`](research.md)** — Nanda config verification, model spec derivation, the five canonical frequencies (k ∈ {14, 35, 41, 42, 52}) and why each one becomes a visual motif planted across rooms 1–4.
-- **[`calibration.md`](calibration.md)** — training run calibration, hyperparameter sensitivity, checkpoint selection.
-- **[`transformer-rooms-design-phase-1.md`](transformer-rooms-design-phase-1.md)** — eight locked design decisions: arc shape, world choice, room slate, visual language, platform scope, level unit, stack, MVP boundary.
-- **[`transformer-rooms-step-b-prototype.md`](transformer-rooms-step-b-prototype.md)** — prototype-phase decisions and validations.
-- **[`docs/math-antechamber-design.md`](docs/math-antechamber-design.md)** — math primer room: pedagogical scaffolding before the conceptual rooms.
+- **[`calibration.md`](calibration.md)** — Day-1-Player knowledge calibration: five-tier comfort survey that drove the decision to add a Level 0 Math Antechamber and shaped each room's just-in-time primer.
+- **[`docs/math-antechamber-design.md`](docs/math-antechamber-design.md)** — Math primer room design: pedagogical scaffolding before the conceptual rooms.
 
 ## Visual language
 

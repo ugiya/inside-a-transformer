@@ -4,12 +4,12 @@
 **Date started:** 2026-05-02
 **Date completed:** 2026-05-03
 **Framing:** mixed, weighted toward α — the finished game must be playable by Day-1-Uri.
-**Method:** the design grill knowledge-calibration round (no design; probes only).
+**Method:** structured knowledge-calibration round (no design; probes only).
 
 This sheet is the input to:
-- Step C of phase 2 (per-room acceptance criteria).
+- The per-room acceptance-criteria pass.
 - The Level 0 / per-room-explainer-scene decision.
-- Eventually the PRD (the PRD generation step).
+- Eventually the PRD.
 
 ---
 
@@ -246,8 +246,8 @@ Short prepended scenes (~2–3 min) at each room covering the prereqs that room 
 - [x] Run T5 probe → fill in T5 section.
 - [x] Finalize "Preliminary recommendation" → "Final recommendation" once T5 is closed.
 - [x] Commit to git.
-- [ ] Use as input to Step C (acceptance criteria) and the PRD generation step.
+- [ ] Use as input to the acceptance-criteria pass and the PRD.
 
 ---
 
-*Generated via the design grill knowledge-calibration round on 2026-05-02; T5 closed and recommendation finalized 2026-05-03.*
+*Generated via the structured knowledge-calibration round on 2026-05-02; T5 closed and recommendation finalized 2026-05-03.*

@@ -10,8 +10,8 @@
 	//   5. Ring of N memory-dials on the brass plate
 	//   6. Per-dial residue glow blooms (composed via screen-blend)
 	//
-	// See PRD #18 (https://github.com/uri-gil/transformer-rooms/issues/18) and
-	// slice #20 (https://github.com/uri-gil/transformer-rooms/issues/20).
+	// See PRD #18 (https://github.com/ugiya/inside-a-transformer/issues/18) and
+	// slice #20 (https://github.com/ugiya/inside-a-transformer/issues/20).
 	import Dial from './Dial.svelte';
 	import type { ResidueGlow } from './types';
 

@@ -3,7 +3,7 @@
  *
  * Three independent sources name this object the same: Maarek's AWS-MLS-C01
  * cert lecture (Section 04, lecture 05) calls it a "memory cell"; Geron's
- * Hands-On ML Ch. 13 names it `memory_cell` in his `SimpleRnnModel`; @uri-gil
+ * Hands-On ML Ch. 13 names it `memory_cell` in his `SimpleRnnModel`; @ugiya
  * studied both. The vocabulary is canonical.
  *
  * Math (per the on-page explainer at /hall-of-memory):

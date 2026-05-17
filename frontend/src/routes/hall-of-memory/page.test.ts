@@ -1,8 +1,12 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render } from '@testing-library/svelte';
 import Page from './+page.svelte';
 
 describe('Hall of Memory page', () => {
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
 	it('renders without crashing on mount', () => {
 		const { container } = render(Page);
 		expect(container.querySelector('main')).not.toBeNull();
@@ -46,24 +50,38 @@ describe('Hall of Memory page', () => {
 		expect(door?.getAttribute('href')).toBe('/attention-hall');
 	});
 
-	// Slice #19 tracer bullet: the "Last Receiver" placeholder game element
-	// renders at the top of <main>, before the existing pedagogy explainer.
-	// This proves all 5 deep modules in lib/rnn/ are importable and that the
-	// page integration is wired before any visual game ships in slice #21.
-	it('renders the Last Receiver placeholder at the top of <main>, before the explainer', () => {
+	// The Last Receiver game element renders at the top of <main>, before
+	// the pedagogy explainer. Originally added as the slice #19 tracer bullet;
+	// remains the integration invariant after slice #21-23 land the full game.
+	it('renders the Last Receiver at the top of <main>, before the explainer', () => {
 		const { container } = render(Page);
 		const main = container.querySelector('main');
 		expect(main).not.toBeNull();
 
-		const placeholder = main!.querySelector('[data-test="last-receiver"]');
-		expect(placeholder).not.toBeNull();
+		const lastReceiver = main!.querySelector('[data-test="last-receiver"]');
+		expect(lastReceiver).not.toBeNull();
 
 		const explainer = main!.querySelector('[data-test="rnn-explainer"]');
 		expect(explainer).not.toBeNull();
 
-		// Placeholder must come BEFORE the explainer in document order.
-		const position = placeholder!.compareDocumentPosition(explainer!);
-		// Node.DOCUMENT_POSITION_FOLLOWING = 4 → explainer follows placeholder
+		// Last Receiver must come BEFORE the explainer in document order.
+		const position = lastReceiver!.compareDocumentPosition(explainer!);
+		// Node.DOCUMENT_POSITION_FOLLOWING = 4 → explainer follows lastReceiver
 		expect(position & 4).toBe(4);
+	});
+
+	it('mounts on default phase (threshold) with no console errors', () => {
+		const errSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+		const { container } = render(Page);
+
+		// On default render, LastReceiver enters the threshold phase.
+		const lastReceiver = container.querySelector('[data-test="last-receiver"]');
+		expect(lastReceiver?.getAttribute('data-phase')).toBe('threshold');
+		// Threshold UI is rendered (N/T sliders, begin button).
+		expect(container.querySelector('[data-test="threshold"]')).not.toBeNull();
+		expect(container.querySelector('[data-test="threshold-begin"]')).not.toBeNull();
+
+		// No console.error calls during mount.
+		expect(errSpy).not.toHaveBeenCalled();
 	});
 });

@@ -55,3 +55,7 @@ logs/
 
 # Worktrees from spawned agents
 .claude/
+
+# Local-only scratch / notes (not part of the repo)
+MEMORY/
+positional-encoding-deep-dive.md

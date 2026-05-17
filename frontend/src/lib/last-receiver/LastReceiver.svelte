@@ -1,70 +1,101 @@
 <script lang="ts">
-	// "Be the Last Receiver" — Hall of Memory immersive game.
-	// Slice #19 tracer-bullet placeholder: imports one symbol from each of the
-	// 5 deep RNN modules to prove the foundation integrates at the page level.
-	// The full visual game ships in slice #21 (Threshold + Sink + Simulation)
-	// and slice #22 (Debrief). See PRD #18.
-	import { PALETTE, generateTransmission, EMBED_DIM } from '$lib/rnn/transmissions';
-	import { getEmbedding } from '$lib/rnn/embeddings';
+	// "Be the Last Receiver" — Hall of Memory immersive RNN-bottleneck game.
+	// Orchestrator: holds runtime state and routes between phase screens.
+	// Phases: threshold → sinking → simulating → debriefing → exit.
+	// PRD #18.
+	import Threshold from './Threshold.svelte';
+	import SinkTransition from './SinkTransition.svelte';
+	import Simulation from './Simulation.svelte';
 	import { initWeights } from '$lib/rnn/weights';
-	import { runSequence } from '$lib/rnn/recurrence';
-	import { generateQuestions } from '$lib/rnn/recall-test';
+	import { generateTransmission, PALETTE, EMBED_DIM } from '$lib/rnn/transmissions';
+	import type { Weights } from '$lib/rnn/recurrence';
+	import type { Residue } from '$lib/rnn/recurrence';
 
-	const DEFAULT_N = 12;
-	const DEFAULT_T = 7;
-	const DEMO_SEED = 42;
+	type Phase = 'threshold' | 'sinking' | 'simulating' | 'debriefing' | 'exit';
 
-	// Prove integration: actually call one function from each module so any
-	// type / interface mismatch surfaces at compile or test time.
-	const demoTransmissions = generateTransmission(PALETTE, DEFAULT_T, DEMO_SEED);
-	const demoEmbed = getEmbedding(demoTransmissions[0]);
-	const demoWeights = initWeights(DEFAULT_N, EMBED_DIM, DEMO_SEED);
-	const initialH: number[] = new Array<number>(DEFAULT_N).fill(0);
-	const xSeq = demoTransmissions.map((w) => Array.from(getEmbedding(w)));
-	const demoTrajectory = runSequence(initialH, xSeq, demoWeights);
-	const demoQuestions = generateQuestions(
-		demoTransmissions,
-		[],
-		PALETTE,
-		DEMO_SEED
-	);
+	interface Props {
+		// Optional override for the tick pace of the inner Simulation (ms per
+		// transmission). Production uses 2500ms; tests pass a small value.
+		tickMs?: number;
+		// Optional override for the sink-transition duration (ms).
+		sinkMs?: number;
+	}
+	let { tickMs = 2500, sinkMs = 1100 }: Props = $props();
+
+	let phase = $state<Phase>('threshold');
+	let N = $state(12);
+	let T = $state(7);
+	let seed = $state(Math.floor(Math.random() * 1e6));
+	let weights = $state<Weights | null>(null);
+	let words = $state<readonly string[]>([]);
+	let finalTrajectory = $state<readonly (readonly number[])[]>([]);
+	let finalBlooms = $state<readonly Residue[]>([]);
+
+	function begin(newN: number, newT: number) {
+		N = newN;
+		T = newT;
+		weights = initWeights(N, EMBED_DIM, seed);
+		words = generateTransmission(PALETTE, T, seed);
+		phase = 'sinking';
+	}
+
+	function onSinkDone() {
+		phase = 'simulating';
+	}
+
+	function onSimDone(
+		trajectory: number[][],
+		blooms: readonly Residue[]
+	) {
+		finalTrajectory = trajectory;
+		finalBlooms = blooms;
+		phase = 'debriefing';
+	}
+
+	function replay() {
+		// New seed so a replay isn't identical.
+		seed = Math.floor(Math.random() * 1e6);
+		finalTrajectory = [];
+		finalBlooms = [];
+		phase = 'threshold';
+	}
 </script>
 
-<aside class="last-receiver" data-test="last-receiver">
+<aside class="last-receiver" data-test="last-receiver" data-phase={phase}>
 	<header>
 		<h2>The Last Receiver</h2>
-		<p class="kicker">An immersive RNN-bottleneck game — V1 in progress.</p>
+		<p class="kicker">An immersive RNN-bottleneck game.</p>
 	</header>
 
-	<div class="copy">
-		<p>
-			You are about to step into a clockwork memory-engine in a besieged watchtower.
-			Survivors will dictate their last words to you, one at a time. After their
-			messages have passed, command will radio in to ask what you remembered.
-			You will not be allowed to look back at the scroll.
-		</p>
-		<p class="status">
-			<strong>Status:</strong> the simulation pipeline is being built one slice
-			at a time (see PRD <a href="https://github.com/uri-gil/transformer-rooms/issues/18" target="_blank" rel="noopener">#18</a>).
-			This panel is the <em>foundation tracer bullet</em> — the math is wired,
-			the visual game ships in the next slice.
-		</p>
-	</div>
-
-	<dl class="config">
-		<dt>Default capacity (N)</dt><dd>{DEFAULT_N} memory dials</dd>
-		<dt>Default dictation (T)</dt><dd>{DEFAULT_T} transmissions</dd>
-		<dt>Palette</dt><dd>{PALETTE.length} story words ({EMBED_DIM}-D embeddings)</dd>
-		<dt>Demo run (seed {DEMO_SEED})</dt><dd class="demo">{demoTransmissions.join(' · ')}</dd>
-		<dt>Trajectory length</dt><dd>{demoTrajectory.length} hidden-state snapshots</dd>
-		<dt>Recall questions</dt><dd>{demoQuestions.length} (last word first)</dd>
-		<dt>First embedding[0]</dt><dd>{demoEmbed[0].toFixed(3)}</dd>
-	</dl>
+	{#if phase === 'threshold'}
+		<Threshold initialN={N} initialT={T} onBegin={begin} />
+	{:else if phase === 'sinking'}
+		<SinkTransition durationMs={sinkMs} onComplete={onSinkDone} />
+	{:else if phase === 'simulating' && weights}
+		<Simulation
+			{N}
+			{words}
+			weights={weights}
+			{tickMs}
+			onComplete={onSimDone}
+		/>
+	{:else if phase === 'debriefing'}
+		<section class="debrief-placeholder" data-test="debrief-placeholder">
+			<p class="placeholder-line">Debrief coming soon.</p>
+			<p class="placeholder-sub">
+				You held the dictation. Command will radio in for recall in the next
+				iteration (slice 4). Until then, you can step off the glyph and try a
+				new configuration.
+			</p>
+			<button type="button" class="reset" onclick={replay} data-test="debrief-reset">
+				step off the glyph
+			</button>
+		</section>
+	{/if}
 </aside>
 
 <style>
 	.last-receiver {
-		max-width: 72ch;
 		margin: 0 0 2rem;
 		padding: 1.25rem 1.5rem;
 		border-left: 2px solid var(--brass);
@@ -86,40 +117,43 @@
 		font-style: italic;
 		color: var(--ivory-muted);
 	}
-	.copy p {
-		margin: 0 0 0.75rem;
-	}
-	.copy strong {
-		color: var(--ivory);
-	}
-	.copy em {
-		color: var(--brass-bright);
-		font-style: italic;
-	}
-	.copy a {
-		color: var(--brass-bright);
-		text-decoration: underline;
-	}
-	.config {
-		display: grid;
-		grid-template-columns: max-content 1fr;
-		gap: 0.4rem 1rem;
-		margin: 1rem 0 0;
-		padding: 0.85rem 1rem;
+	.debrief-placeholder {
+		max-width: 60ch;
+		margin: 0 auto;
+		padding: 1.25rem 1.5rem;
+		text-align: center;
+		border: 1px dashed var(--teal);
 		background: rgba(13, 21, 24, 0.55);
-		border-top: 1px dashed var(--teal);
-		font-family: 'SF Mono', Menlo, monospace;
-		font-size: 0.85rem;
 	}
-	.config dt {
-		color: var(--ivory-muted);
-	}
-	.config dd {
-		margin: 0;
+	.placeholder-line {
+		margin: 0 0 0.75rem;
+		font-size: 1.05rem;
 		color: var(--brass-bright);
+		letter-spacing: 0.08em;
 	}
-	.config dd.demo {
-		color: var(--ivory);
+	.placeholder-sub {
+		margin: 0 0 1rem;
 		font-style: italic;
+	}
+	.reset {
+		display: inline-flex;
+		padding: 0.6rem 1.2rem;
+		background: transparent;
+		border: 1px solid var(--brass);
+		color: var(--brass-bright);
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		font-size: 0.85rem;
+		cursor: pointer;
+		transition: background 200ms ease;
+	}
+	.reset:hover,
+	.reset:focus-visible {
+		background: rgba(176, 137, 64, 0.15);
+		outline: none;
+	}
+	.reset:focus-visible {
+		outline: 2px solid var(--brass-bright);
+		outline-offset: 3px;
 	}
 </style>

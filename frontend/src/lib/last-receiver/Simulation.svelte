@@ -5,6 +5,7 @@
 	// PRD #18 ISC-11/12/13/14/15/16.
 	import Receiver from './Receiver.svelte';
 	import Transmission from './Transmission.svelte';
+	import MathPanel from './MathPanel.svelte';
 	import { untrack } from 'svelte';
 	import type { ResidueGlow } from './types';
 	import type { Weights } from '$lib/rnn/recurrence';
@@ -65,7 +66,13 @@
 	const h = $derived<number[]>(
 		trajectory[Math.min(step_t + 1, trajectory.length - 1)]
 	);
+	const hPrev = $derived<number[]>(
+		trajectory[Math.min(step_t, trajectory.length - 1)]
+	);
 	const currentWord = $derived(words[Math.min(step_t, T - 1)]);
+	const xCurrent = $derived<number[]>(
+		Array.from(getEmbedding(currentWord))
+	);
 
 	// Per-step residues: each past word (0..step_t) emits one ResidueGlow.
 	// Current step's word is included — it's the brightest.
@@ -79,6 +86,19 @@
 			};
 		})
 	);
+
+	// 2nd-person caption — terse, 1-2 lines, references felt phenomena.
+	const brightestDial = $derived<number>(
+		h.reduce(
+			(maxIdx, val, idx, arr) =>
+				Math.abs(val) > Math.abs(arr[maxIdx]) ? idx : maxIdx,
+			0
+		)
+	);
+	const oldestResiduePct = $derived<number | null>(
+		residues.length > 1 ? Math.round(residues[0].intensity * 100) : null
+	);
+	const oldestWord = $derived(words[0]);
 
 	$effect(() => {
 		if (done) return;
@@ -100,7 +120,7 @@
 		<Receiver {N} {h} {residues} />
 	</div>
 
-	<div class="overlay" aria-live="polite">
+	<div class="overlay" aria-live="polite" aria-atomic="true">
 		{#key step_t}
 			<Transmission
 				word={currentWord}
@@ -110,6 +130,32 @@
 			/>
 		{/key}
 	</div>
+
+	<div class="caption-area" aria-live="polite">
+		{#key step_t}
+			<p class="caption" data-test="sim-caption">
+				{#if step_t === 0}
+					You feel the first transmission arrive. Dial
+					<strong>{brightestDial + 1}</strong> flares as
+					<em>'{currentWord}'</em> sweeps through.
+				{:else}
+					<em>'{currentWord}'</em> washes through. Dial
+					<strong>{brightestDial + 1}</strong> shifts; the trace of
+					<em>'{oldestWord}'</em> has dimmed to
+					<strong>{oldestResiduePct}%</strong>.
+				{/if}
+			</p>
+		{/key}
+	</div>
+
+	<MathPanel
+		{weights}
+		{xCurrent}
+		{hPrev}
+		hNew={h}
+		word={currentWord}
+		step={step_t}
+	/>
 </section>
 
 <style>
@@ -125,5 +171,33 @@
 	}
 	.overlay {
 		min-height: 5rem;
+	}
+	.caption-area {
+		max-width: 56ch;
+		min-height: 3rem;
+		text-align: center;
+		padding: 0 1rem;
+	}
+	.caption {
+		margin: 0;
+		font-size: 0.9rem;
+		line-height: 1.55;
+		color: var(--ivory-muted);
+		font-style: italic;
+		animation: fadeIn 500ms ease-out both;
+	}
+	.caption strong {
+		color: var(--brass-bright);
+		font-style: normal;
+	}
+	.caption em {
+		color: var(--ivory);
+	}
+	@keyframes fadeIn {
+		from { opacity: 0; }
+		to { opacity: 1; }
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.caption { animation: none; }
 	}
 </style>

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import LastReceiver from '$lib/last-receiver/LastReceiver.svelte';
+
 	// Static prologue scene. No props — pure click-through.
 	// A chain of N RNN cells passes a memory packet rightward; opacity decays
 	// linearly so the player sees the memory fade as it travels — the bottleneck
@@ -25,6 +27,136 @@
 		<a class="back" href="/">← rooms</a>
 		<h1>🕯 Hall of Memory</h1>
 	</header>
+
+	<LastReceiver />
+
+	<section class="explainer" data-test="rnn-explainer">
+		<h2>What's actually in each cell?</h2>
+		<p class="lede">
+			This room is a <strong>Recurrent Neural Network (RNN)</strong> — the kind of
+			model that came <em>before</em> transformers. Each box below labeled
+			<code>h₀, h₁, …</code> is a <strong>hidden state</strong> — and a hidden state
+			is just a <strong>vector</strong>, the same kind of object you dragged in
+			📐 Math Antechamber. Typically <code>32</code> or <code>128</code> numbers.
+			Together, those numbers = <em>"what the model remembers after reading word n"</em>.
+		</p>
+
+		<h3>How a new cell is computed (the recurrence)</h3>
+		<pre class="formula" data-test="rnn-formula"><span>h_t = tanh(  W_x · x_t  +  W_h · h_(t-1)  +  b  )</span>
+<span>            ─────────     ────────────     ─</span>
+<span>            new word's    last cell's      bias</span>
+<span>            contribution  contribution     (constant)</span></pre>
+
+		<h3>Every symbol, decoded</h3>
+		<p class="hint">
+			Read the formula left-to-right; every symbol below is one piece. Nothing
+			assumed.
+		</p>
+		<ul class="glossary">
+			<li>
+				<strong><code>t</code></strong> — a <em>step counter</em>. Just an integer.
+				<code>t = 0</code> after the first word, <code>t = 1</code> after the second,
+				<code>t = 5</code> after the sixth, and so on. The whole point of an RNN is
+				that the same machine runs once per step, with <code>t</code> ticking up
+				each time.
+			</li>
+			<li>
+				<strong><code>h_t</code></strong> — the <em>hidden state at step t</em>: a
+				vector of typically 32 (or 128) numbers. <em>This is what we're computing —
+				the output of the formula.</em> Read as "h sub t" or just "h at time t."
+				It is the model's running memory after the t-th word.
+			</li>
+			<li>
+				<strong><code>h_(t-1)</code></strong> — the hidden state at step <code>t-1</code>,
+				i.e. <em>one step earlier</em>. The "previous memory." If <code>t = 5</code>,
+				then <code>h_(t-1)</code> means <code>h_4</code>. <em>This is an input to the
+				formula, not an output.</em>
+			</li>
+			<li>
+				<strong><code>x_t</code></strong> — the current word's vector (its embedding,
+				straight out of 🌱 Embedding Garden). Also an input. Read as "x sub t" — the
+				input <em>at this step</em>.
+			</li>
+			<li>
+				<strong><code>W_x</code></strong> — a matrix of <em>learned weights</em>
+				(values that get adjusted during training). Every row of <code>W_x</code> is
+				one neuron's "recipe" for reading the new word. If <code>h</code> has 32
+				numbers and <code>x_t</code> has 100, then <code>W_x</code> is a 32×100 grid.
+			</li>
+			<li>
+				<strong><code>W_x · x_t</code></strong> — matrix × vector. Each output is one
+				dot product: row <code>i</code> of <code>W_x</code> dotted with <code>x_t</code>.
+				<em>32 rows → 32 dot products → 32 numbers</em> — exactly the "stack of dot
+				products" pattern from Math Antechamber's matrix×vector panel. The result is
+				a 32-number vector — the "current word's contribution to memory."
+			</li>
+			<li>
+				<strong><code>W_h</code></strong> — another matrix of learned weights, the
+				<em>recurrent</em> weights. This one re-mixes the previous hidden state. If
+				<code>h</code> has 32 numbers, <code>W_h</code> is 32×32. Read as "the memory
+				stirrer" — its job is to take last step's memory and stir it into a useful
+				input for this step.
+			</li>
+			<li>
+				<strong><code>W_h · h_(t-1)</code></strong> — same matrix × vector trick again.
+				32 rows of <code>W_h</code>, each dotted with the previous 32-number memory →
+				32 numbers. The "previous memory's contribution to the new memory."
+			</li>
+			<li>
+				<strong><code>+ b</code></strong> — a learned <em>bias vector</em> of 32
+				numbers. A constant nudge added to each of the 32 outputs. Lets a neuron
+				say "even if every input is zero, fire a bit anyway."
+			</li>
+			<li>
+				<strong><code>tanh(…)</code></strong> — the <em>hyperbolic tangent</em>
+				function. Takes any real number and squashes it into the range
+				<code>[−1, +1]</code>. Why? <em>To keep <code>h</code> from exploding.</em>
+				Without <code>tanh</code>, the numbers in <code>h</code> could grow huge over
+				many steps and the model would become unstable. With it, every entry of
+				<code>h</code> stays bounded between −1 and +1. (Every nonlinearity in any
+				neural network — <code>tanh</code>, <code>ReLU</code>, <code>sigmoid</code>,
+				<code>GELU</code> — does this same job: keeps numbers in a useful range.
+				Different functions, same purpose.)
+			</li>
+		</ul>
+
+		<h3>Reading the formula as a procedure</h3>
+		<p class="hint">
+			Step-by-step, what a single RNN cell does when the model sees the
+			<code>t</code>-th word:
+		</p>
+		<ol class="glossary">
+			<li>
+				Compute <code>W_x · x_t</code> → 32 numbers (this word's reading).
+			</li>
+			<li>
+				Compute <code>W_h · h_(t-1)</code> → 32 numbers (the previous memory's reading).
+			</li>
+			<li>
+				Add those together <em>elementwise</em> → 32 numbers.
+			</li>
+			<li>
+				Add the bias vector <code>b</code> → 32 numbers.
+			</li>
+			<li>
+				Apply <code>tanh</code> to each of the 32 numbers → 32 squashed numbers.
+			</li>
+			<li>
+				That's <code>h_t</code>. Save it. Read the next word. Repeat.
+			</li>
+		</ol>
+		<p class="hint">
+			One RNN cell = one execution of those 6 steps. Six steps later, you have
+			processed 6 words and produced <code>h_5</code>. The chain in the diagram below
+			shows that loop unrolled.
+		</p>
+
+		<p class="forward">
+			Once you can read <code>W·x + b</code>, you can read 80% of any neural-network
+			paper. You'll meet it again as Q/K/V projections in 👁 Attention Hall, as
+			feed-forward layers in 🔥 MLP Forge, and as the unembedding in 🗼 Unembedding Tower.
+		</p>
+	</section>
 
 	<section class="scene">
 		<svg
@@ -126,6 +258,77 @@
 		font-size: 2rem;
 		margin: 0.5rem 0 1.5rem;
 		color: var(--ivory);
+	}
+	.explainer {
+		max-width: 70ch;
+		margin: 0 0 2rem;
+		padding: 1.25rem 1.5rem;
+		border-left: 2px solid var(--brass);
+		background: rgba(13, 21, 24, 0.45);
+		color: var(--ivory-muted);
+		font-size: 0.95rem;
+		line-height: 1.55;
+	}
+	.explainer h2 {
+		font-size: 1.05rem;
+		font-weight: 500;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: var(--brass-bright);
+		margin: 0 0 0.75rem;
+	}
+	.explainer h3 {
+		font-size: 0.95rem;
+		font-weight: 500;
+		color: var(--ivory);
+		margin: 1.25rem 0 0.5rem;
+	}
+	.explainer p {
+		margin: 0 0 0.75rem;
+	}
+	.explainer p:last-child {
+		margin: 0;
+	}
+	.explainer strong {
+		color: var(--ivory);
+	}
+	.explainer em {
+		color: var(--brass-bright);
+		font-style: italic;
+	}
+	.explainer code {
+		font-family: 'SF Mono', Menlo, monospace;
+		color: var(--brass-bright);
+		font-size: 0.9em;
+	}
+	.explainer .formula {
+		font-family: 'SF Mono', Menlo, monospace;
+		color: var(--brass-bright);
+		background: rgba(13, 21, 24, 0.6);
+		padding: 0.85rem 1rem;
+		margin: 0 0 0.75rem;
+		font-size: 0.86rem;
+		line-height: 1.55;
+		white-space: pre;
+		overflow-x: auto;
+	}
+	.explainer .formula span {
+		display: block;
+	}
+	.explainer .glossary {
+		margin: 0.25rem 0 0.75rem 1.25rem;
+		padding: 0;
+	}
+	.explainer .glossary li {
+		margin-bottom: 0.5rem;
+	}
+	.explainer .forward {
+		font-size: 0.88rem;
+		color: var(--ivory-muted);
+		font-style: italic;
+		border-top: 1px dashed var(--teal);
+		padding-top: 0.75rem;
+		margin-top: 1rem;
 	}
 	.scene {
 		display: grid;

@@ -45,4 +45,25 @@ describe('Hall of Memory page', () => {
 		expect(door).not.toBeNull();
 		expect(door?.getAttribute('href')).toBe('/attention-hall');
 	});
+
+	// Slice #19 tracer bullet: the "Last Receiver" placeholder game element
+	// renders at the top of <main>, before the existing pedagogy explainer.
+	// This proves all 5 deep modules in lib/rnn/ are importable and that the
+	// page integration is wired before any visual game ships in slice #21.
+	it('renders the Last Receiver placeholder at the top of <main>, before the explainer', () => {
+		const { container } = render(Page);
+		const main = container.querySelector('main');
+		expect(main).not.toBeNull();
+
+		const placeholder = main!.querySelector('[data-test="last-receiver"]');
+		expect(placeholder).not.toBeNull();
+
+		const explainer = main!.querySelector('[data-test="rnn-explainer"]');
+		expect(explainer).not.toBeNull();
+
+		// Placeholder must come BEFORE the explainer in document order.
+		const position = placeholder!.compareDocumentPosition(explainer!);
+		// Node.DOCUMENT_POSITION_FOLLOWING = 4 → explainer follows placeholder
+		expect(position & 4).toBe(4);
+	});
 });

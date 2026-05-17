@@ -39,10 +39,43 @@
 		<a class="back" href="/">← rooms</a>
 		<h1>📐 Math Antechamber</h1>
 		<p class="prose">
-			A short geometric warm-up before the rest of the lab. Five small instruments. Drag,
-			slide, hover; watch the numbers move with you. If you already speak this language fluently,
-			you can skip ahead.
+			Five small instruments — drag, slide, hover, watch the numbers move with you.
+			Each one teaches a piece of math the lab will need <em>and</em> plants a visual
+			motif you'll meet later as part of the Fourier circuit reveal.
 		</p>
+		<aside class="why" data-test="antechamber-why">
+			<h2>Why these five, in this order?</h2>
+			<ol>
+				<li>
+					<strong>Vector</strong> — every "thing" inside a transformer (a token, a
+					hidden state, a Q/K/V) is one of these. <em>Foundation.</em>
+				</li>
+				<li>
+					<strong>Dot product</strong> — turns two vectors into one number that
+					says "how aligned are they?". <em>Attention scores are dot products.</em>
+				</li>
+				<li>
+					<strong>Matrix × vector</strong> — a stack of dot products. <em>Every
+					layer in every neural network is one of these (plus a bias and a
+					nonlinearity).</em>
+				</li>
+				<li>
+					<strong>Sin &amp; cos as waves</strong> — the actual math the model will
+					end up doing internally. <em>The Fourier punchline in Room 8 is built
+					out of these.</em>
+				</li>
+				<li>
+					<strong>The unit circle</strong> — where sin and cos live. <em>The model
+					will encode each of the 113 integers as a point on this circle (at five
+					different frequencies).</em>
+				</li>
+			</ol>
+			<p>
+				If you already speak this language fluently, you can skip ahead — but the
+				whole reveal in 🌀 Fourier Wing depends on these five things, so pause
+				here if anything looks unfamiliar.
+			</p>
+		</aside>
 		<div class="progress" data-test="progress">
 			{#each steps as s, i (s.key)}
 				<span class="dot" class:current={i === currentStep} class:done={i < currentStep}></span>
@@ -104,6 +137,41 @@
 		max-width: 60ch;
 		color: var(--ivory-muted);
 		line-height: 1.5;
+	}
+	.why {
+		max-width: 72ch;
+		margin: 1.25rem 0 0;
+		padding: 1.1rem 1.4rem;
+		border-left: 2px solid var(--brass);
+		background: rgba(13, 21, 24, 0.45);
+		color: var(--ivory-muted);
+		font-size: 0.93rem;
+		line-height: 1.55;
+	}
+	.why h2 {
+		font-size: 1rem;
+		font-weight: 500;
+		letter-spacing: 0.1em;
+		text-transform: uppercase;
+		color: var(--brass-bright);
+		margin: 0 0 0.6rem;
+	}
+	.why ol {
+		margin: 0.25rem 0 0.6rem 1.25rem;
+		padding: 0;
+	}
+	.why ol li {
+		margin-bottom: 0.4rem;
+	}
+	.why p {
+		margin: 0;
+	}
+	.why strong {
+		color: var(--ivory);
+	}
+	.why em {
+		color: var(--brass-bright);
+		font-style: italic;
 	}
 	.progress {
 		display: flex;
